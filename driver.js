@@ -1,7 +1,7 @@
 // --- JavaScript Code Starts Here ---
 // !!! IMPORTANT: Replace this with your actual Cloudflare Worker URL !!!
 // You'll get this URL after deploying your Worker (e.g., https://your-worker-name.your-username.workers.dev)
-const API_BASE_URL = 'https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev/api'; // Example
+const API_BASE_URL = 'https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev'; // Example
 
 const WHATSAPP_NUMBER = '18683568145'; // Your WhatsApp Business number
 
