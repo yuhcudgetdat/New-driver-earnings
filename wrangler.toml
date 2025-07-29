@@ -1,0 +1,15 @@
+# wrangler.toml
+name = "blackcarpet-rideshare-worker" # Your Worker name
+main = "src/index.js"
+compatibility_date = "2024-07-29" # Use a recent date
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB" # This variable name will be available as env.DB in your Worker
+database_name = "blackcarpet-db" # The name you gave your D1 database in Cloudflare UI
+database_id = "<YOUR_D1_DATABASE_ID>" # Get this from the D1 dashboard
+
+# R2 Bucket Binding
+[[r2_buckets]]
+binding = "BUCKET" # This variable name will be available as env.BUCKET in your Worker
+bucket_name = "blackcarpet-images" # The name you gave your R2 bucket in Cloudflare UI
