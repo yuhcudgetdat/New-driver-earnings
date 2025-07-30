@@ -1,7 +1,7 @@
 // driver.js - JavaScript code for your frontend
 
 // IMPORTANT: This is your actual Cloudflare Worker URL.
-// It is: https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev
+// From your screenshots, this is: https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev
 const API_BASE_URL = 'https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev';
 
 let loggedInDriverId = null;
@@ -101,8 +101,8 @@ document.getElementById('initialAdminSetupForm')?.addEventListener('submit', asy
             displayMessage(data.message || 'Admin setup failed.', true);
         }
     } catch (error) {
-        console.error("Error during admin setup:", error);
-        displayMessage("Network or API Error during admin setup: " + error.message, true);
+            console.error("Error during admin setup:", error);
+            displayMessage("Network or API Error during admin setup: " + error.message, true);
     }
 });
 
