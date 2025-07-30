@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Earnings App</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Driver & Admin Login</title> <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        <section id="initialAdminSetupSection" class="app-section" style="display:none;">
+    <div class="container main-login-container"> <section id="initialAdminSetupSection" class="app-section" style="display:none;">
             <h2>Initial Admin Setup</h2>
             <form id="initialAdminSetupForm">
                 <label for="adminUsername">Admin Email:</label>
@@ -20,26 +18,28 @@
             </form>
         </section>
 
-        <section id="adminLoginSection" class="app-section" style="display:none;">
-            <h2>Admin Login</h2>
-            <form id="adminLoginForm">
-                <label for="adminLoginUsername">Email:</label>
-                <input type="email" id="adminLoginUsername" required>
-                <label for="adminLoginPassword">Password:</label>
-                <input type="password" id="adminLoginPassword" required>
-                <button type="submit">Login as Admin</button>
-            </form>
-        </section>
+        <div id="loginFormsWrapper" class="login-forms-grid" style="display:flex;">
+            <section id="driverLoginSection" class="app-section login-form-card" style="display:block;">
+                <h2>Driver Login</h2>
+                <form id="driverLoginForm">
+                    <label for="driverIdInput">Driver ID:</label>
+                    <input type="text" id="driverIdInput" required>
+                    <button type="submit">Login as Driver</button>
+                </form>
+            </section>
 
-        <section id="driverLoginSection" class="app-section" style="display:block;">
-            <h2>Driver Login</h2>
-            <form id="driverLoginForm">
-                <label for="driverIdInput">Driver ID:</label>
-                <input type="text" id="driverIdInput" required>
-                <button type="submit">Login as Driver</button>
-            </form>
-            <button id="adminLoginButton" style="display:none;">Go to Admin Login</button>
-        </section>
+            <section id="adminLoginSection" class="app-section login-form-card" style="display:block;">
+                <h2>Admin Login</h2>
+                <form id="adminLoginForm">
+                    <label for="adminLoginUsername">Email:</label>
+                    <input type="email" id="adminLoginUsername" required>
+                    <label for="adminLoginPassword">Password:</label>
+                    <input type="password" id="adminLoginPassword" required>
+                    <button type="submit">Login as Admin</button>
+                </form>
+            </section>
+        </div>
+
 
         <section id="driverDashboard" class="app-section" style="display:none;">
             <h2>Driver Dashboard</h2>
