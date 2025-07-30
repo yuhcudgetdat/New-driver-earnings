@@ -1,0 +1,379 @@
+/* style.css */
+
+/* Google Fonts - Chewy */
+/* Make sure this link is also in your index.html head section:
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&display=swap">
+*/
+
+:root {
+    --primary-bg: #000000; /* Black background */
+    --secondary-bg: #1a1a1a; /* Slightly lighter black for sections */
+    --accent-gold: #FFD700; /* Gold accent color */
+    --accent-white: #FFFFFF; /* White accent color */
+    --text-color: #E0E0E0; /* Light grey for general text on dark background */
+    --font-family-chewy: 'Chewy', cursive;
+    --font-family-default: sans-serif;
+    --border-radius: 8px;
+    --padding-medium: 15px;
+    --margin-large: 20px;
+}
+
+body {
+    font-family: var(--font-family-default); /* Default for most text */
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: var(--secondary-bg);
+    color: var(--accent-white);
+    padding: var(--padding-medium) var(--margin-large);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align logo and title to start */
+    border-bottom: 2px solid var(--accent-gold);
+}
+
+.logo {
+    height: 50px; /* Adjust as needed */
+    margin-right: var(--padding-medium);
+    border-radius: var(--border-radius);
+    object-fit: contain; /* Ensure logo scales correctly */
+}
+
+header h1 {
+    font-family: var(--font-family-chewy);
+    color: var(--accent-gold);
+    margin: 0;
+    font-size: 2.5em; /* Larger, more prominent title */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+}
+
+main {
+    flex: 1; /* Allows main content to take up available space */
+    padding: var(--margin-large);
+    max-width: 900px; /* Constrain content width for readability */
+    margin: 20px auto; /* Center main content */
+    background-color: var(--secondary-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); /* Subtle gold glow */
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+footer {
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    text-align: center;
+    padding: var(--padding-medium);
+    margin-top: var(--margin-large);
+    border-top: 2px solid var(--accent-gold);
+}
+
+h2, h3 {
+    font-family: var(--font-family-chewy);
+    color: var(--accent-gold);
+    margin-bottom: var(--padding-medium);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    padding-bottom: 5px;
+}
+
+/* Section Styling */
+.content-section {
+    background-color: var(--secondary-bg);
+    padding: var(--padding-medium);
+    margin-bottom: var(--margin-large);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.content-section:last-child {
+    margin-bottom: 0;
+}
+
+/* Navigation Buttons */
+nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 10px;
+    margin-bottom: var(--margin-large);
+    padding: var(--padding-medium);
+    background-color: var(--secondary-bg);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.nav-button {
+    background-color: #333; /* Darker background for buttons */
+    color: var(--accent-white);
+    padding: 10px 20px;
+    border: 1px solid var(--accent-gold);
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: var(--font-family-chewy);
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    flex-grow: 1; /* Allow buttons to grow and fill space */
+    text-align: center;
+}
+
+.nav-button:hover,
+.nav-button.active {
+    background-color: var(--accent-gold);
+    color: var(--primary-bg);
+    border-color: var(--accent-white);
+}
+
+/* Form Elements */
+.input-group {
+    display: flex;
+    flex-wrap: wrap; /* Allow inputs to wrap */
+    gap: 10px;
+    margin-bottom: var(--padding-medium);
+    align-items: center;
+}
+
+.input-group input[type="text"],
+.input-group input[type="password"],
+.input-group input[type="number"],
+.input-group input[type="date"],
+.input-group select,
+.input-group textarea {
+    flex: 1; /* Allow inputs to grow */
+    padding: 10px;
+    border: 1px solid var(--accent-gold);
+    border-radius: 5px;
+    background-color: #2a2a2a; /* Darker input background */
+    color: var(--text-color);
+    min-width: 180px; /* Minimum width for inputs */
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+    color: #999;
+}
+
+.input-group button {
+    background-color: var(--accent-gold);
+    color: var(--primary-bg);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: var(--font-family-default); /* Default for buttons for readability */
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.input-group button:hover {
+    background-color: #CCAA00; /* Darker gold on hover */
+    color: var(--accent-white);
+}
+
+/* Specific button styles */
+button.whatsapp-button {
+    background-color: #25D366; /* WhatsApp Green */
+    color: var(--accent-white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-family: var(--font-family-default);
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none; /* For the <a> tag acting as a button */
+    display: inline-block;
+    text-align: center;
+}
+
+button.whatsapp-button:hover {
+    background-color: #1DA851;
+}
+
+button.danger-button {
+    background-color: #D32F2F; /* Red for danger actions */
+    color: var(--accent-white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-family: var(--font-family-default);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button.danger-button:hover {
+    background-color: #B71C1C;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--padding-medium);
+    background-color: #2a2a2a; /* Slightly lighter than section for table */
+    border-radius: var(--border-radius);
+    overflow: hidden; /* Ensures rounded corners */
+}
+
+table th, table td {
+    padding: 10px;
+    border: 1px solid #444; /* Darker grey border for table cells */
+    text-align: left;
+}
+
+table th {
+    background-color: #333;
+    color: var(--accent-gold);
+    font-family: var(--font-family-chewy);
+    font-size: 1.1em;
+}
+
+table tr:nth-child(even) {
+    background-color: #202020; /* Alternate row color */
+}
+
+table tr:hover {
+    background-color: #3a3a3a;
+}
+
+/* Image Previews/Uploads */
+.image-previews, .image-upload-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: var(--padding-medium);
+    justify-content: center;
+}
+
+.image-previews > div, .image-upload-section > div {
+    text-align: center;
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+}
+
+.image-previews img, .image-upload-section img {
+    max-width: 150px;
+    height: auto;
+    border: 2px solid var(--accent-gold);
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.image-upload-section input[type="file"] {
+    display: block;
+    margin: 10px auto;
+    color: var(--text-color); /* To make file input text visible */
+}
+
+/* Leaderboard Specifics */
+.leaderboard-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: var(--padding-medium);
+}
+
+.leaderboard-chart .place {
+    background-color: #2a2a2a;
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    border: 1px solid #444;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.leaderboard-chart .first {
+    background-color: var(--accent-gold);
+    color: var(--primary-bg);
+    font-size: 1.2em;
+    border-color: var(--accent-white);
+}
+
+.leaderboard-chart .second {
+    background-color: #C0C0C0; /* Silver */
+    color: var(--primary-bg);
+    font-size: 1.1em;
+    border-color: var(--accent-gold);
+}
+
+.leaderboard-chart .third {
+    background-color: #CD7F32; /* Bronze */
+    color: var(--primary-bg);
+    font-size: 1.05em;
+    border-color: var(--accent-gold);
+}
+
+.leaderboard-chart .place .rank {
+    font-family: var(--font-family-chewy);
+    margin-right: 10px;
+    min-width: 50px; /* Ensure rank space */
+    text-align: left;
+}
+
+.leaderboard-chart .place .driver-name {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.leaderboard-chart .place .rides {
+    font-family: var(--font-family-chewy);
+    color: var(--primary-bg); /* Text on gold/silver/bronze */
+    background-color: rgba(0,0,0,0.2); /* Slight overlay */
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.leaderboard-chart .first .rides { color: var(--primary-bg); }
+.leaderboard-chart .second .rides { color: var(--primary-bg); }
+.leaderboard-chart .third .rides { color: var(--primary-bg); }
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+    .logo {
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+    header h1 {
+        font-size: 2em;
+    }
+    main {
+        padding: var(--padding-medium);
+        margin: 10px auto;
+    }
+    .nav-button {
+        flex-basis: 48%; /* Two buttons per row */
+    }
+    .input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .input-group input,
+    .input-group select,
+    .input-group textarea,
+    .input-group button {
+        width: 100%; /* Full width on small screens */
+        min-width: unset;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-button {
+        flex-basis: 100%; /* One button per row */
+    }
+}
