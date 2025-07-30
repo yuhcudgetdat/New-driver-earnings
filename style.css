@@ -179,4 +179,30 @@ li {
     color: #FFFFFF; /* White on hover for close button */
     text-decoration: none;
     cursor: pointer;
+} 
+/* Styling for the wrapper of both login forms */
+.main-login-container {
+    max-width: 800px; /* Adjust max-width to accommodate two forms side-by-side */
+}
+
+.login-forms-grid {
+    display: flex;
+    flex-wrap: wrap; /* Allows forms to wrap to next line on smaller screens */
+    gap: 20px; /* Space between the two login forms */
+    justify-content: center; /* Center the forms if there's extra space */
+}
+
+.login-form-card {
+    flex: 1; /* Allows forms to grow and shrink */
+    min-width: 300px; /* Minimum width for each form before wrapping */
+    background-color: #1a1a1a; /* Darker background for the form cards */
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #FFD700; /* Gold border for the form cards */
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2); /* More prominent gold shadow */
+}
+
+/* Ensure sections are hidden by default, unless explicitly set to block by JS or initial HTML */
+.app-section:not(#driverLoginSection):not(#adminLoginSection):not(#initialAdminSetupSection) {
+    display: none;
 }
