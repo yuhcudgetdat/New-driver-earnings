@@ -3,255 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' data: blob: https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
-    <title>Driver Dashboard</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&display=swap">
-    <link rel="stylesheet" href="style.css"> </head>
+    <title>Driver Earnings App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-    <header>
-        <img src="https://via.placeholder.com/100x50?text=Business+Logo" alt="Business Logo" class="logo">
-        <h1>Driver Dashboard</h1>
-    </header>
 
-    <main>
-        <section id="driver-notes-section" class="content-section active">
-            <h2>Driver Notes:</h2>
-            <p id="driver-notes">Loading notes...</p>
-        </section>
-
-        <section id="initial-admin-setup" class="content-section" style="display: none;">
+    <div class="container">
+        <section id="initialAdminSetupSection" class="app-section" style="display:none;">
             <h2>Initial Admin Setup</h2>
-            <p>Please set your initial admin password. This will only appear once.</p>
-            <div class="input-group">
-                <input type="password" id="initial-admin-password" placeholder="New Admin Password">
-                <input type="password" id="confirm-initial-admin-password" placeholder="Confirm Password">
-                <button onclick="setInitialAdminPassword()">Set Password</button>
-            </div>
+            <form id="initialAdminSetupForm">
+                <label for="adminUsername">Admin Email:</label>
+                <input type="email" id="adminUsername" required>
+                <label for="adminPassword">Admin Password:</label>
+                <input type="password" id="adminPassword" required>
+                <button type="submit">Setup Admin Account</button>
+            </form>
         </section>
 
-        <section id="login-section" class="content-section" style="display: none;">
-            <h2>Driver Login</h2>
-            <div class="input-group">
-                <input type="text" id="driver-id-input" placeholder="Enter Driver ID">
-                <button onclick="loginDriver()">Login</button>
-                <button onclick="showAdminLogin()">Admin Login</button>
-            </div>
-        </section>
-
-        <section id="admin-login-section" class="content-section" style="display: none;">
+        <section id="adminLoginSection" class="app-section" style="display:none;">
             <h2>Admin Login</h2>
-            <div class="input-group">
-                <input type="password" id="admin-password-input" placeholder="Enter Admin Password">
-                <button onclick="loginAdmin()">Login</button>
-                <button onclick="showLogin()">Driver Login</button>
-            </div>
+            <form id="adminLoginForm">
+                <label for="adminLoginUsername">Email:</label>
+                <input type="email" id="adminLoginUsername" required>
+                <label for="adminLoginPassword">Password:</label>
+                <input type="password" id="adminLoginPassword" required>
+                <button type="submit">Login as Admin</button>
+            </form>
         </section>
 
-        <nav id="driver-nav" style="display: none;">
-            <button class="nav-button active" onclick="showSection('rides-earnings', true)">Rides & Earnings</button>
-            <button class="nav-button" onclick="showSection('profile', true)">Profile</button>
-            <button class="nav-button" onclick="showSection('commissions', true)">Commissions</button>
-            <button class="nav-button" onclick="showSection('leaderboard', true)">Leaderboard</button>
-            <button class="nav-button" onclick="logout()">Logout</button>
-        </nav>
-
-        <nav id="admin-nav" style="display: none;">
-            <button class="nav-button active" onclick="showSection('admin-dashboard', true)">Admin Dashboard</button>
-            <button class="nav-button" onclick="logout()">Logout</button>
-        </nav>
-
-        <section id="rides-earnings" class="content-section" style="display: none;">
-            <h2>Rides & Earnings</h2>
-            <p>Total Rides: <span id="total-rides">0</span></p>
-            <p>Total Earnings: <span id="total-earnings">$0.00</span></p>
-            <h3>Recent Rides</h3>
-            <table id="rides-table">
-                <thead>
-                    <tr>
-                        <th>Ride ID</th>
-                        <th>Date</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Fare</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
+        <section id="driverLoginSection" class="app-section" style="display:block;">
+            <h2>Driver Login</h2>
+            <form id="driverLoginForm">
+                <label for="driverIdInput">Driver ID:</label>
+                <input type="text" id="driverIdInput" required>
+                <button type="submit">Login as Driver</button>
+            </form>
+            <button id="adminLoginButton" style="display:none;">Go to Admin Login</button>
         </section>
 
-        <section id="profile" class="content-section" style="display: none;">
-            <h2>Driver Profile</h2>
-            <p><strong>Full Name:</strong> <span id="profile-full-name">N/A</span></p>
-            <p><strong>Driver ID:</strong> <span id="profile-id">N/A</span></p>
-            <p><strong>WhatsApp Phone:</strong> <span id="profile-whatsapp-phone">N/A</span></p>
-            <p><strong>Vehicle Type/Color:</strong> <span id="profile-vehicle-type-color">N/A</span></p>
-            <p><strong>License Plate:</strong> <span id="profile-license-plate">N/A</span></p>
-            <p><strong>Driver's License No.:</strong> <span id="profile-drivers-license-number">N/A</span></p>
-            <p><strong>Insurance Policy No.:</strong> <span id="profile-insurance-number">N/A</span></p>
-
-            <h3>Pictures</h3>
-            <div class="image-previews">
-                <div>
-                    <p>Driver Picture:</p>
-                    <a id="driver-picture-link" href="#" target="_blank" style="display:none;">View Image</a>
-                    <img id="profile-driver-picture" src="" alt="Driver Picture" style="display:none; max-width: 150px;">
-                    <span id="profile-driver-picture-placeholder">No driver picture uploaded.</span>
-                </div>
-                <div>
-                    <p>Vehicle Picture:</p>
-                    <a id="vehicle-picture-link" href="#" target="_blank" style="display:none;">View Image</a>
-                    <img id="profile-vehicle-picture" src="" alt="Vehicle Picture" style="display:none; max-width: 150px;">
-                    <span id="profile-vehicle-picture-placeholder">No vehicle picture uploaded.</span>
-                </div>
-                <div>
-                    <p>Insurance Picture:</p>
-                    <a id="insurance-picture-link" href="#" target="_blank" style="display:none;">View Image</a>
-                    <img id="profile-insurance-picture" src="" alt="Insurance Picture" style="display:none; max-width: 150px;">
-                    <span id="profile-insurance-picture-placeholder">No insurance picture uploaded.</span>
-                </div>
-            </div>
+        <section id="driverDashboard" class="app-section" style="display:none;">
+            <h2>Driver Dashboard</h2>
+            <p>Welcome, Driver <span id="loggedInDriverDisplayName"></span>!</p>
+            <h3>Your Notes:</h3>
+            <ul id="driverNotesList">
+                <li>Loading notes...</li>
+            </ul>
+            <button id="addNoteButton">Add New Note</button>
+            <button id="logoutButton">Logout</button>
         </section>
 
-        <section id="commissions" class="content-section" style="display: none;">
-            <h2>Commissions</h2>
-            <p>Amount Due: <span id="commission-amount">$0.00</span></p>
-            <p>Due Date: <span id="commission-due-date">N/A</span></p>
-            <p><a id="whatsapp-payment-link" href="#" target="_blank" class="whatsapp-button">Inquire via WhatsApp</a></p>
-        </section>
-
-        <section id="leaderboard" class="content-section" style="display: none;">
-            <h2>Leaderboard (Top 3 by Rides)</h2>
-            <div class="leaderboard-chart">
-                <div class="place first">
-                    <span class="rank">1st</span>
-                    <span class="driver-name">N/A</span>
-                    <span class="rides">0 rides</span>
-                </div>
-                <div class="place second">
-                    <span class="rank">2nd</span>
-                    <span class="driver-name">N/A</span>
-                    <span class="rides">0 rides</span>
-                </div>
-                <div class="place third">
-                    <span class="rank">3rd</span>
-                    <span class="driver-name">N/A</span>
-                    <span class="rides">0 rides</span>
-                </div>
-            </div>
-        </section>
-
-        <section id="admin-dashboard" class="content-section" style="display: none;">
+        <section id="adminDashboard" class="app-section" style="display:none;">
             <h2>Admin Dashboard</h2>
-
-            <h3>Manage Driver Notes</h3>
-            <div class="input-group">
-                <textarea id="admin-driver-notes" rows="5" placeholder="Enter general driver notes here..."></textarea>
-                <button onclick="updateDriverNotes()">Update Notes</button>
-            </div>
-
-            <h3>Add New Driver</h3>
-            <div class="input-group">
-                <input type="text" id="add-driver-id" placeholder="Driver ID (e.g., D001)">
-                <input type="text" id="add-driver-name" placeholder="Full Name">
-                <input type="password" id="add-driver-password" placeholder="Password">
-                <button onclick="addDriver()">Add Driver</button>
-            </div>
-
-            <h3>Edit/Remove Driver Profile</h3>
-            <div class="input-group">
-                <select id="select-driver-to-manage" onchange="loadDriverForEdit()">
-                    <option value="">-- Select Driver --</option>
-                </select>
-                <input type="text" id="edit-driver-full-name" placeholder="Full Name">
-                <input type="text" id="edit-driver-whatsapp-phone" placeholder="WhatsApp Phone">
-                <input type="text" id="edit-driver-vehicle-type-color" placeholder="Vehicle Type/Color">
-                <input type="text" id="edit-driver-license-plate" placeholder="License Plate">
-                <input type="text" id="edit-driver-drivers-license-number" placeholder="Driver's License No.">
-                <input type="text" id="edit-driver-insurance-number" placeholder="Insurance Policy No.">
-                <button onclick="updateDriverProfile()">Update Profile</button>
-                <button onclick="removeDriver()">Remove Driver</button>
-            </div>
-
-            <h3>Manage Driver Pictures</h3>
-            <div class="input-group">
-                <select id="select-driver-for-pictures" onchange="loadDriverPicturesForAdmin()">
-                    <option value="">-- Select Driver --</option>
-                </select>
-            </div>
-            <div class="image-upload-section">
-                <div>
-                    <h4>Driver Picture</h4>
-                    <input type="file" id="upload-driver-picture" accept="image/*" onchange="previewImage(event, 'preview-driver-picture')">
-                    <button onclick="uploadPicture('driverPicture')">Upload Driver Pic</button>
-                    <img id="preview-driver-picture" src="" alt="Driver Pic Preview" style="display:none; max-width: 150px;">
-                </div>
-                <div>
-                    <h4>Vehicle Picture</h4>
-                    <input type="file" id="upload-vehicle-picture" accept="image/*" onchange="previewImage(event, 'preview-vehicle-picture')">
-                    <button onclick="uploadPicture('vehiclePicture')">Upload Vehicle Pic</button>
-                    <img id="preview-vehicle-picture" src="" alt="Vehicle Pic Preview" style="display:none; max-width: 150px;">
-                </div>
-                <div>
-                    <h4>Insurance Picture</h4>
-                    <input type="file" id="upload-insurance-picture" accept="image/*" onchange="previewImage(event, 'preview-insurance-picture')">
-                    <button onclick="uploadPicture('insurancePicture')">Upload Insurance Pic</button>
-                    <img id="preview-insurance-picture" src="" alt="Insurance Pic Preview" style="display:none; max-width: 150px;">
-                </div>
-            </div>
-
-            <h3>Manage Driver Rides</h3>
-            <div class="input-group">
-                <select id="select-driver-for-rides" onchange="loadRidesForAdmin()">
-                    <option value="">-- Select Driver --</option>
-                </select>
-            </div>
-            <h4>Add New Ride</h4>
-            <div class="input-group">
-                <input type="text" id="new-ride-origin" placeholder="Origin">
-                <input type="text" id="new-ride-destination" placeholder="Destination">
-                <input type="number" id="new-ride-fare" placeholder="Fare" step="0.01">
-                <button onclick="addRideToDriver()">Add Ride</button>
-            </div>
-            <h4>Existing Rides</h4>
-            <table id="admin-rides-table">
-                <thead>
-                    <tr>
-                        <th>Ride ID</th>
-                        <th>Date</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Fare</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
-
-            <h3>Manage Driver Commissions</h3>
-            <div class="input-group">
-                <select id="select-driver-for-commissions" onchange="loadCommissionsForAdmin()">
-                    <option value="">-- Select Driver --</option>
-                </select>
-            </div>
-            <p>Current Amount Due: <span id="admin-commission-amount">$0.00</span></p>
-            <p>Current Due Date: <span id="admin-commission-due-date">N/A</span></p>
-            <div class="input-group">
-                <input type="number" id="set-commission-amount" placeholder="Set Amount Due" step="0.01">
-                <input type="date" id="set-commission-due-date">
-                <button onclick="setDriverCommission()">Set Commission</button>
-            </div>
-
-            <h3>Clear All Backend Data (DANGER!)</h3>
-            <button class="danger-button" onclick="clearAllDataBackend()">Clear All Data</button>
+            <p>Welcome, Admin!</p>
+            <h3>Manage Drivers:</h3>
+            <ul id="adminDriversList">
+                </ul>
+            <button id="addDriverButton">Add New Driver</button>
+            <button id="adminLogoutButton">Logout Admin</button>
         </section>
-    </main>
 
-    <footer>
-        <p>&copy; 2024 Black Carpet RideShare & Logistics. All rights reserved.</p>
-    </footer>
+        <div id="addNoteModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3>Add New Note</h3>
+                <form id="newNoteForm">
+                    <label for="noteContent">Note:</label>
+                    <textarea id="noteContent" rows="4" required></textarea>
+                    <button type="submit">Save Note</button>
+                </form>
+            </div>
+        </div>
 
-    <script src="driver.js"></script> 
+        <div id="addDriverModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3>Add New Driver</h3>
+                <form id="newDriverForm">
+                    <label for="newDriverId">Driver ID:</label>
+                    <input type="text" id="newDriverId" required>
+                    <label for="newDriverName">Driver Name:</label>
+                    <input type="text" id="newDriverName">
+                    <button type="submit">Add Driver</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="apiResponseAlert" class="alert" style="display:none;"></div>
+
+    </div> <script src="driver.js"></script>
+
 </body>
 </html>
