@@ -1,7 +1,7 @@
 // --- JavaScript Code Starts Here ---
 // !!! IMPORTANT: Replace this with your actual Cloudflare Worker URL !!!
 // You'll get this URL after deploying your Worker (e.g., https://your-worker-name.your-username.workers.dev)
-const API_BASE_URL = 'https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev'; // Example
+const API_BASE_URL = 'https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev'; // THIS IS YOUR ACTUAL WORKER URL
 
 const WHATSAPP_NUMBER = '18683568145'; // Your WhatsApp Business number
 
@@ -36,7 +36,7 @@ async function apiCall(endpoint, method = 'GET', data = null, isFormData = false
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, options); // Ensures all calls use the correct base URL
 
         if (response.status === 401) { // Unauthorized
             displayMessage('Session expired or unauthorized. Please log in again.', true);
@@ -105,7 +105,7 @@ function showSection(sectionId, updateNav = false) {
     if (isAdmin && sectionId === 'admin-dashboard') {
         loadAdminDashboard();
     }
-    loadDriverNotes(); // Always load notes
+    loadDriverNotes(); // Always load notes on section change, will update if needed
 }
 
 // --- Authentication Functions ---
@@ -165,7 +165,7 @@ async function checkAuthAndLoad() {
         displayMessage(`Failed to check initial setup or authenticate: ${error.message}`, true);
         showSection('login-section'); // Fallback to login in case of network issues with /auth/status
     }
-    loadDriverNotes(); // Load notes regardless of login state
+    // No longer calling loadDriverNotes here directly, as it's called by showSection or other specific functions
 }
 
 
@@ -418,6 +418,17 @@ async function loadDriverNotes() {
 }
 
 // --- Admin Dashboard Functions --- (All now use apiCall)
+async function updateDriverNotes() {
+    if (!isAdmin) return;
+    const newNotes = document.getElementById('admin-driver-notes').value;
+    const response = await apiCall('/settings/driver-notes', 'PUT', { driverNotes: newNotes });
+    if (response && response.success) {
+        displayMessage("Driver notes updated successfully!");
+        loadDriverNotes(); // Refresh notes
+    }
+}
+
+
 async function loadAdminDashboard() {
     if (!isAdmin) return;
     populateDriverSelects();
@@ -727,45 +738,16 @@ async function setDriverCommission() {
         return;
     }
 
-    const response = await apiCall(`/drivers/${driverId}/commission`, 'PUT', { amountDue, dueDate }); // Update commission
-
+    const response = await apiCall(`/drivers/${driverId}/commission`, 'PUT', { amountDue, dueDate });
     if (response && response.success) {
-        displayMessage(`Commission set for ${driverId} successfully!`);
-        loadCommissionsForAdmin(); // Refresh values
-    }
-}
-
-async function updateDriverNotes() {
-    const notes = document.getElementById('admin-driver-notes').value.trim();
-    const response = await apiCall('/settings/driver-notes', 'PUT', { notes }); // Update general settings
-
-    if (response && response.success) {
-        displayMessage("Driver notes updated successfully!");
-        loadDriverNotes(); // Update notes on dashboard
-    }
-}
-
-async function downloadData() {
-    displayMessage("Initiating data download... This might take a moment.", false);
-    const response = await apiCall('/admin/download-data', 'GET'); // Request all data from backend
-    if (response) {
-        const dataStr = JSON.stringify(response, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'blackcarpet_rideshare_data.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        displayMessage("Data downloaded successfully!");
+        displayMessage(`Commission set successfully for ${driverId}!`);
+        loadCommissionsForAdmin(); // Refresh the display
     }
 }
 
 async function clearAllDataBackend() {
-    if (confirm("WARNING: This will permanently delete ALL driver data and admin settings from the backend database. Are you absolutely sure? This action cannot be undone.")) {
-        const response = await apiCall('/admin/clear-all-data', 'POST'); // Using POST for destructive action
+    if (confirm("WARNING: This will permanently delete ALL Driver data and Admin settings from the backend. Are you absolutely sure?")) {
+        const response = await apiCall('/admin/clear-all-data', 'POST'); // Using POST for destructive actions
         if (response && response.success) {
             displayMessage("All backend data cleared. The application will restart for initial setup.", false);
             logout(); // Force logout
@@ -775,9 +757,8 @@ async function clearAllDataBackend() {
 }
 
 
-// --- Initial Load ---
+// --- Event Listeners and Initial Load ---
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthAndLoad(); // This will determine which section to show initially
+    // loadDriverNotes(); // No longer calling here, checkAuthAndLoad handles it or subsequent showSection
 });
-
-// --- JavaScript Code Ends Here ---
