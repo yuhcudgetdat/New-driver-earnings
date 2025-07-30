@@ -1,82 +1,136 @@
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
+// driver.js - JavaScript code for your frontend
 
-async function handleRequest(request) {
-  const url = new URL(request.url);
-  const path = url.pathname; // e.g., /api/driver-login, /api/notes
+// IMPORTANT: This is your actual Cloudflare Worker URL.
+// It is: https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev
+const API_BASE_URL = 'https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev';
 
-  let responseBody;
-  let statusCode = 200;
+let loggedInDriverId = null;
+let isAdmin = false; // Initial state: assume not admin
+let userToken = null; // Store JWT token if implemented
 
-  // Define the allowed origin for CORS.
-  // This MUST EXACTLY match your Cloudflare Pages frontend URL.
-  const allowedOrigin = 'https://6579bcbb.new-driver-earnings.pages.dev'; // CORRECTED TO 6579BCBB
+// --- Utility Functions ---
 
-  // Handle CORS Preflight (OPTIONS requests)
-  // This MUST be at the top of your fetch handler.
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': allowedOrigin, // Allow requests from your specific frontend URL
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Max-Age': '86400', // Cache preflight for 24 hours
-      },
-    });
-  }
-
-  // Define CORS headers for actual requests (GET, POST, etc.)
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin, // Allow requests from your specific frontend URL
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-
-  try {
-    if (path === '/api/driver-login' && request.method === 'POST') {
-      const data = await request.json();
-      // Perform driver login verification here
-      // Example: if (data.driverId === "test" && data.password === "pass")
-      responseBody = { message: 'Driver login placeholder response. success: true' };
-    } else if (path === '/api/notes' && request.method === 'GET') {
-      // Example: Fetch driver notes from a KV store or other service
-      responseBody = { notes: 'Welcome! Please check here for important updates.' };
-    } else if (path === '/api/auth/status' && request.method === 'GET') {
-      // Simulate admin setup status
-      // Set to true to trigger admin setup, false to show login
-      const isAdminSetup = false; // <<< Adjust this based on your backend logic
-      responseBody = { isAdminSetup: isAdminSetup };
-    } else if (path === '/api/admin/setup' && request.method === 'POST') {
-      // Handle initial admin setup
-      const data = await request.json();
-      // Store admin credentials securely (e.g., in KV or another database)
-      responseBody = { message: 'Admin setup successful!' };
-    } else if (path === '/api/admin/login' && request.method === 'POST') {
-      // Handle admin login
-      const data = await request.json();
-      // Verify admin credentials
-      responseBody = { message: 'Admin login successful!' };
+function displayMessage(message, isError = false) {
+    const alertBox = document.getElementById('apiResponseAlert'); // Assuming you have an alert div in your HTML
+    if (alertBox) {
+        alertBox.textContent = message;
+        alertBox.className = isError ? 'alert alert-danger' : 'alert alert-success';
+        alertBox.style.display = 'block';
     } else {
-      statusCode = 404;
-      responseBody = { error: 'Endpoint not found or method not allowed', path: path, method: request.method };
+        // Fallback for alerts if no specific alertBox element
+        if (isError) {
+            alert("Error: " + message);
+        } else {
+            alert(message);
+        }
     }
-  } catch (e) {
-    statusCode = 500;
-    responseBody = { error: 'Error processing request', message: e.message };
-  }
-
-  return new Response(JSON.stringify(responseBody), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    status: statusCode,
-  });
+    console.log(isError ? "Error: " : "Info: ", message);
 }
 
-// Placeholder for destructive admin function if needed (e.g., clear all data)
-async function clearAllDataBackend() {
-  // WARNING: This would delete all driver data and admin settings from the backend.
-  // Implement with extreme caution and strong authentication/authorization.
-  // Example: await MY_KV_NAMESPACE.delete('all_data_key');
-  // displayMessage('All backend data cleared. The application will restart for initial setup.', false);
-  // authAndLoad(); // Force logout and re-initialize
+function showSection(sectionId) {
+    document.querySelectorAll('.app-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    document.getElementById(sectionId).style.display = 'block';
 }
+
+async function checkAdminStatus() {
+    try {
+        console.log(`Attempting to fetch admin status from: ${API_BASE_URL}/api/auth/status`); // Log the URL being called
+        const response = await fetch(`${API_BASE_URL}/api/auth/status`);
+        if (!response.ok) {
+            // If the response is not OK (e.g., 404, 500, or network error),
+            // it means the worker couldn't process the request or respond properly.
+            // This is where 'Failed to fetch' comes from if the fetch() itself failed.
+            const errorText = await response.text(); // Get raw error if possible
+            throw new Error(`API status check failed: ${response.status} ${response.statusText} - ${errorText}`);
+        }
+        const data = await response.json();
+        isAdmin = data.isAdminSetup;
+
+        if (isAdmin) {
+            showSection('adminLoginSection'); // Or a general login, if initial setup is done
+            document.getElementById('adminLoginButton').style.display = 'block'; // Make admin button visible if needed
+            document.getElementById('initialAdminSetupForm').style.display = 'none'; // Hide setup if admin exists
+            console.log("Admin is already set up. Showing admin login.");
+            // Potentially show a "Login as Admin" option or redirect
+        } else {
+            showSection('initialAdminSetupSection'); // Show initial setup form
+            document.getElementById('adminLoginButton').style.display = 'none'; // Hide admin login until setup
+            console.log("Admin is NOT set up. Showing initial admin setup form.");
+        }
+    } catch (error) {
+        console.error("Error during admin status check:", error);
+        displayMessage("Network or API Error: Failed to fetch admin status. Please try again. " + error.message, true);
+        // Default to showing driver login if API call fails, or a specific error page
+        showSection('driverLoginSection'); // Show driver login section if API call fails
+        // Ensure admin login button is initially disabled/hidden on error
+        const adminLoginBtn = document.getElementById('adminLoginButton');
+        if (adminLoginBtn) adminLoginBtn.disabled = true;
+    }
+}
+
+
+// --- Event Listeners and Initial Load ---
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOMContentLoaded fired."); // Check if this logs
+    checkAdminStatus(); // Initial check on page load
+});
+
+// Example of how other forms/buttons would call the API
+// You'll need to add event listeners for your actual form submissions and buttons.
+
+// Example: Initial Admin Setup Form Submission
+document.getElementById('initialAdminSetupForm')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const adminUsername = document.getElementById('adminUsername').value;
+    const adminPassword = document.getElementById('adminPassword').value;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/setup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: adminUsername, password: adminPassword })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            displayMessage(data.message || 'Admin setup successful!');
+            isAdmin = true; // Update status
+            showSection('adminLoginSection'); // Go to admin login after setup
+        } else {
+            displayMessage(data.message || 'Admin setup failed.', true);
+        }
+    } catch (error) {
+        console.error("Error during admin setup:", error);
+        displayMessage("Network or API Error during admin setup: " + error.message, true);
+    }
+});
+
+// Example: Driver Login Form Submission
+document.getElementById('driverLoginForm')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const driverId = document.getElementById('driverIdInput').value; // Assuming ID is 'driverIdInput'
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/driver-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ driverId: driverId })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            displayMessage(data.message || 'Driver login successful!');
+            loggedInDriverId = driverId;
+            showSection('driverDashboard'); // Show driver dashboard
+        } else {
+            displayMessage(data.message || 'Driver login failed.', true);
+        }
+    } catch (error) {
+        console.error("Error during driver login:", error);
+        displayMessage("Network or API Error during driver login: " + error.message, true);
+    }
+});
+
+
+// Add similar event listeners for admin login, and any other forms/buttons you have.
+// Ensure your HTML elements have the correct IDs for the JS to find them (e.g., 'driverLoginForm', 'driverIdInput', 'adminLoginButton', 'initialAdminSetupForm', 'adminUsername', 'adminPassword').
