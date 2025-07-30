@@ -10,11 +10,8 @@ async function handleRequest(request) {
   let statusCode = 200;
 
   // Define the allowed origin for CORS.
-  // IMPORTANT: For local development, you might use 'http://localhost:8080' or similar.
-  // For your current Cloudflare Pages preview, it's this specific URL.
-  // When you switch to your custom domain (e.g., new-driver-earnings.pages.dev without the hash),
-  // you MUST update this to that specific domain.
-  const allowedOrigin = 'https://6579bcbb.new-driver-earnings.pages.dev';
+  // This MUST EXACTLY match your Cloudflare Pages frontend URL.
+  const allowedOrigin = 'https://6579bcbb.new-driver-earnings.pages.dev'; // CORRECTED TO 6579BCBB
 
   // Handle CORS Preflight (OPTIONS requests)
   // This MUST be at the top of your fetch handler.
