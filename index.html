@@ -3,94 +3,1416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver & Admin Login</title> <link rel="stylesheet" href="style.css">
+    <title>Driver Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Code (from your original file) Starts Here --- */
+        body {
+            background-color: #000000; /* Full black background */
+            color: #FFFFFF; /* White text for general content */
+            font-family: 'Chewy', cursive, sans-serif; /* Chewy font */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #1a1a1a; /* Slightly lighter black for content areas */
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); /* Gold shadow */
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-placeholder img {
+            max-width: 150px; /* Adjust as needed */
+            height: auto;
+            margin-bottom: 15px;
+        }
+        .driver-notes-section {
+            background-color: #333333;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .driver-notes-section h2 {
+            color: #FFD700; /* Gold for headings */
+            margin-top: 0;
+        }
+        .driver-notes-section p {
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+        /* Login and Admin sections */
+        #login-section, #admin-login-section, #admin-setup-section {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        #login-section input, #admin-login-section input, #admin-setup-section input {
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid #FFD700;
+            background-color: #000000;
+            color: #FFFFFF;
+            border-radius: 5px;
+            font-family: 'Chewy', cursive, sans-serif;
+        }
+        #login-section button, #admin-login-section button, #admin-setup-section button {
+            background-color: #FFD700;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Chewy', cursive, sans-serif;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+        #login-section button:hover, #admin-login-section button:hover, #admin-setup-section button:hover {
+            background-color: #e0b000;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #FFD700; /* Gold accent */
+            padding-bottom: 10px;
+        }
+        .nav-button {
+            background-color: #333333;
+            color: #FFFFFF;
+            border: 2px solid #555555;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Chewy', cursive, sans-serif;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        .nav-button:hover {
+            background-color: #555555;
+            border-color: #FFD700;
+        }
+        .nav-button.active {
+            background-color: #FFD700; /* Gold when active */
+            color: #000000;
+            border-color: #FFD700;
+            font-weight: bold;
+        }
+        .content-section {
+            display: none; /* Hidden by default, shown by JavaScript */
+        }
+        .content-section.active {
+            display: block;
+        }
+        h1, h2, h3 {
+            color: #FFD700; /* Gold for main headings */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .data-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .summary-box {
+            background-color: #333333;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+            border: 1px solid #555555;
+        }
+        .summary-box h3 {
+            color: #FFFFFF;
+            margin-top: 0;
+        }
+        .summary-box p {
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700; /* Gold for values */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table th, table td {
+            border: 1px solid #555555;
+            padding: 12px;
+            text-align: left;
+            color: #FFFFFF;
+        }
+        table th {
+            background-color: #333333;
+            color: #FFD700; /* Gold for table headers */
+            font-weight: bold;
+        }
+        table tr:nth-child(even) {
+            background-color: #222222;
+        }
+        table tr:hover {
+            background-color: #444444;
+        }
+        .profile-details p {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .profile-details strong {
+            color: #FFD700;
+        }
+        .support-message {
+            font-style: italic;
+            color: #AAAAAA;
+            text-align: center;
+            margin-top: 20px;
+        }
+        /* Leaderboard Styling */
+        .leaderboard-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+        .place {
+            background-color: #333333;
+            border: 2px solid #555555;
+            border-radius: 10px;
+            padding: 15px 25px;
+            margin-bottom: 15px;
+            width: 80%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .first-place {
+            background-color: #FFD700; /* Gold for 1st place */
+            color: #000000;
+            border-color: #FFD700;
+            font-size: 1.6em;
+            padding: 20px 30px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
+        .second-place {
+            background-color: #C0C0C0; /* Silver for 2nd place */
+            color: #000000;
+            border-color: #C0C0C0;
+            font-size: 1.4em;
+        }
+        .third-place {
+            background-color: #CD7F32; /* Bronze for 3rd place */
+            color: #000000;
+            border-color: #CD7F32;
+            font-size: 1.2em;
+        }
+        .place .rank {
+            font-size: 1.2em;
+            margin-right: 15px;
+            min-width: 40px;
+            text-align: center;
+        }
+        .first-place .rank, .second-place .rank, .third-place .rank {
+            color: #000000;
+        }
+        .place .driver-name {
+            flex-grow: 1;
+            text-align: left;
+        }
+        .place .rides {
+            color: #FFFFFF; /* White for ride count in lower places */
+            font-style: italic;
+        }
+        .first-place .rides {
+            color: #000000; /* Black for ride count in first place */
+        }
+        /* Admin Specific Styling */
+        .admin-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .admin-section {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #444444;
+        }
+        .admin-section h2, .admin-section h3 {
+            color: #FFD700;
+            text-align: left;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .admin-section input[type="text"],
+        .admin-section input[type="number"],
+        .admin-section input[type="date"],
+        .admin-section select,
+        .admin-section textarea {
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #FFD700;
+            background-color: #000000;
+            color: #FFFFFF;
+            border-radius: 5px;
+            font-family: 'Chewy', cursive, sans-serif;
+        }
+        .admin-section input[type="file"] {
+            width: calc(100% - 2px); /* Account for border */
+            padding: 10px 0;
+            margin-bottom: 10px;
+            color: #FFFFFF;
+            font-family: 'Chewy', cursive, sans-serif;
+            border: none; /* File input styling is tricky, better to let browser handle */
+        }
+        .admin-section button {
+            background-color: #FFD700;
+            color: #000000;
+            border: none;
+            padding: 10px 15px;
+            margin-top: 5px;
+            margin-right: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Chewy', cursive, sans-serif;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .admin-section button:hover {
+            background-color: #e0b000;
+        }
+        /* Admin table specific */
+        #admin-rides-table td button {
+            background-color: #ff4d4d; /* Red for delete */
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+        #admin-rides-table td button:hover {
+            background-color: #cc0000;
+        }
+        /* New Commissions Section Styling */
+        .commission-details {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #333333;
+            border-radius: 8px;
+            border: 1px solid #555555;
+        }
+        .commission-details p {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .commission-details strong {
+            color: #FFD700;
+        }
+        .whatsapp-button {
+            display: inline-block;
+            background-color: #25D366; /* WhatsApp Green */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-family: 'Chewy', cursive, sans-serif;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        .whatsapp-button:hover {
+            background-color: #1DA851;
+        }
+        /* Profile Images */
+        .profile-image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-image-container img {
+            width: 192px; /* Fixed size */
+            height: 192px; /* Fixed size */
+            object-fit: cover; /* Ensures image covers the area without distortion */
+            border-radius: 50%; /* Circular for driver picture */
+            border: 3px solid #FFD700;
+            margin: 10px;
+            cursor: pointer; /* Indicates it's clickable */
+            transition: transform 0.2s ease-in-out;
+        }
+        .profile-image-container img.vehicle-image,
+        .profile-image-container img.insurance-image {
+            border-radius: 8px; /* Square for vehicle/insurance picture */
+            width: 320px;
+            height: 180px;
+        }
+        .profile-image-container img:hover {
+            transform: scale(1.05); /* Slight scale on hover */
+        }
+        .profile-image-label {
+            display: block;
+            color: #FFD700;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .admin-image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border: 1px solid #555;
+            margin-top: 10px;
+            display: block; /* Ensures it takes its own line */
+        }
+        /* --- CSS Code Ends Here --- */
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <div class="logo-placeholder">
+                <img src="https://via.placeholder.com/150x50?text=Your+Logo" alt="Business Logo">
+            </div>
+            <div class="driver-notes-section">
+                <h2>Driver Notes:</h2>
+                <p id="driver-notes"></p>
+            </div>
+        </header>
 
-    <div class="container main-login-container"> <section id="initialAdminSetupSection" class="app-section" style="display:none;">
-            <h2>Initial Admin Setup</h2>
-            <form id="initialAdminSetupForm">
-                <label for="adminUsername">Admin Email:</label>
-                <input type="email" id="adminUsername" required>
-                <label for="adminPassword">Admin Password:</label>
-                <input type="password" id="adminPassword" required>
-                <button type="submit">Setup Admin Account</button>
-            </form>
-        </section>
+        <div id="admin-setup-section" class="content-section active">
+            <h1>Initial Admin Setup</h1>
+            <p>Please create the first admin account to secure the system.</p>
+            <input type="email" id="admin-setup-username" placeholder="Admin Email">
+            <input type="password" id="admin-setup-password" placeholder="Admin Password">
+            <button onclick="setupAdmin()">Create Admin Account</button>
+        </div>
 
-        <div id="loginFormsWrapper" class="login-forms-grid" style="display:flex;">
-            <section id="driverLoginSection" class="app-section login-form-card" style="display:block;">
-                <h2>Driver Login</h2>
-                <form id="driverLoginForm">
-                    <label for="driverIdInput">Driver ID:</label>
-                    <input type="text" id="driverIdInput" required>
-                    <button type="submit">Login as Driver</button>
-                </form>
+        <div id="login-section" class="content-section">
+            <h1>Driver Login</h1>
+            <input type="text" id="driver-id-input" placeholder="Enter Driver ID">
+            <button onclick="loginDriver()">Login</button>
+            <button onclick="showAdminLogin()">Admin Login</button>
+        </div>
+
+        <div id="admin-login-section" class="content-section">
+            <h1>Admin Login</h1>
+            <input type="email" id="admin-username-input" placeholder="Enter Admin Email">
+            <input type="password" id="admin-password-input" placeholder="Enter Admin Password">
+            <button onclick="loginAdmin()">Login</button>
+            <button onclick="showLogin()">Back to Driver Login</button>
+        </div>
+
+        <nav id="driver-nav" style="display: none;">
+            <button class="nav-button active" onclick="showSection('rides-earnings', true)">My Rides & Earnings</button>
+            <button class="nav-button" onclick="showSection('profile', true)">My Profile</button>
+            <button class="nav-button" onclick="showSection('commissions', true)">Commissions</button>
+            <button class="nav-button" onclick="showSection('leaderboard', true)">Leaderboard</button>
+            <button class="nav-button" onclick="logout()">Logout</button>
+        </nav>
+
+        <nav id="admin-nav" style="display: none;">
+            <button class="nav-button active" onclick="showSection('admin-dashboard', true)">Admin Dashboard</button>
+            <button class="nav-button" onclick="logout()">Logout</button>
+        </nav>
+
+        <main>
+            <section id="rides-earnings" class="content-section">
+                <h1>My Rides & Earnings</h1>
+                <div class="data-summary">
+                    <div class="summary-box">
+                        <h3>Total Rides</h3>
+                        <p id="total-rides">0</p>
+                    </div>
+                    <div class="summary-box">
+                        <h3>Total Earnings</h3>
+                        <p id="total-earnings">$0.00</p>
+                    </div>
+                </div>
+                <h2>Recent Rides</h2>
+                <table id="rides-table">
+                    <thead>
+                        <tr>
+                            <th>Ride ID</th>
+                            <th>Date</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Fare</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
             </section>
 
-            <section id="adminLoginSection" class="app-section login-form-card" style="display:block;">
-                <h2>Admin Login</h2>
-                <form id="adminLoginForm">
-                    <label for="adminLoginUsername">Email:</label>
-                    <input type="email" id="adminLoginUsername" required>
-                    <label for="adminLoginPassword">Password:</label>
-                    <input type="password" id="adminLoginPassword" required>
-                    <button type="submit">Login as Admin</button>
-                </form>
+            <section id="profile" class="content-section">
+                <h1>My Profile</h1>
+                <div class="profile-details">
+                    <div class="profile-image-container">
+                        <a id="driver-picture-link" href="#" target="_blank" style="display:none;">
+                            <img id="profile-driver-picture" src="https://via.placeholder.com/192x192" alt="Driver Picture">
+                            <span class="profile-image-label">Driver Picture</span>
+                        </a>
+                        <a id="vehicle-picture-link" href="#" target="_blank" style="display:none;">
+                            <img id="profile-vehicle-picture" class="vehicle-image" src="https://via.placeholder.com/320x180" alt="Vehicle Picture">
+                            <span class="profile-image-label">Vehicle Picture</span>
+                        </a>
+                        <a id="insurance-picture-link" href="#" target="_blank" style="display:none;">
+                            <img id="profile-insurance-picture" class="insurance-image" src="https://via.placeholder.com/320x180" alt="Insurance Picture">
+                            <span class="profile-image-label">Insurance Picture</span>
+                        </a>
+                    </div>
+                    <p><strong>Full Name:</strong> <span id="profile-full-name"></span></p>
+                    <p><strong>Driver ID:</strong> <span id="profile-id"></span></p>
+                    <p><strong>WhatsApp Phone:</strong> <span id="profile-whatsapp-phone"></span></p>
+                    <p><strong>Vehicle:</strong> <span id="profile-vehicle-type-color"></span></p>
+                    <p><strong>License Plate:</strong> <span id="profile-license-plate"></span></p>
+                    <p><strong>Driver's License No.:</strong> <span id="profile-drivers-license-number"></span></p>
+                    <p><strong>Insurance Number:</strong> <span id="profile-insurance-number"></span></p>
+                    <p class="support-message">To update your profile, please contact support.</p>
+                </div>
             </section>
-        </div>
 
+            <section id="commissions" class="content-section">
+                <h1>My Commissions</h1>
+                <div class="commission-details">
+                    <p>Current Commission Due: <strong id="commission-amount">$0.00</strong></p>
+                    <p>Due Date: <strong id="commission-due-date">N/A</strong></p>
+                    <a id="whatsapp-payment-link" class="whatsapp-button" target="_blank">
+                        Request to Pay Commission
+                    </a>
+                    <p class="support-message" style="margin-top:20px;">
+                        Commissions are calculated based on your total earnings and are updated by admin.
+                    </p>
+                </div>
+            </section>
 
-        <section id="driverDashboard" class="app-section" style="display:none;">
-            <h2>Driver Dashboard</h2>
-            <p>Welcome, Driver <span id="loggedInDriverDisplayName"></span>!</p>
-            <h3>Your Notes:</h3>
-            <ul id="driverNotesList">
-                <li>Loading notes...</li>
-            </ul>
-            <button id="addNoteButton">Add New Note</button>
-            <button id="logoutButton">Logout</button>
-        </section>
+            <section id="leaderboard" class="content-section">
+                <h1>Top Drivers Leaderboard</h1>
+                <div class="leaderboard-chart">
+                    <div class="place first-place">
+                        <span class="rank">1st</span>
+                        <span class="driver-name">N/A</span>
+                        <span class="rides">0 rides</span>
+                    </div>
+                    <div class="place second-place">
+                        <span class="rank">2nd</span>
+                        <span class="driver-name">N/A</span>
+                        <span class="rides">0 rides</span>
+                    </div>
+                    <div class="place third-place">
+                        <span class="rank">3rd</span>
+                        <span class="driver-name">N/A</span>
+                        <span class="rides">0 rides</span>
+                    </div>
+                    <div id="remaining-leaderboard">
+                        </div>
+                </div>
+            </section>
 
-        <section id="adminDashboard" class="app-section" style="display:none;">
-            <h2>Admin Dashboard</h2>
-            <p>Welcome, Admin!</p>
-            <h3>Manage Drivers:</h3>
-            <ul id="adminDriversList">
-                </ul>
-            <button id="addDriverButton">Add New Driver</button>
-            <button id="adminLogoutButton">Logout Admin</button>
-        </section>
+            <section id="admin-dashboard" class="content-section">
+                <h1>Admin Dashboard</h1>
+                <div class="admin-controls">
+                    <div class="admin-section">
+                        <h2>Manage Drivers</h2>
+                        <input type="text" id="add-driver-full-name" placeholder="Driver's Full Name (e.g., Jane Doe)">
+                        <input type="text" id="add-driver-id" placeholder="New Driver ID (e.g., D001)">
+                        <button onclick="addDriver()">Add Driver</button>
+                        <select id="select-driver-to-manage" onchange="loadDriverForEdit()">
+                            <option value="">-- Select Driver to Manage --</option>
+                        </select>
+                        <button onclick="removeDriver()">Remove Selected Driver</button>
 
-        <div id="addNoteModal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <h3>Add New Note</h3>
-                <form id="newNoteForm">
-                    <label for="noteContent">Note:</label>
-                    <textarea id="noteContent" rows="4" required></textarea>
-                    <button type="submit">Save Note</button>
-                </form>
-            </div>
-        </div>
+                        <h3>Edit Selected Driver Profile</h3>
+                        <p class="support-message">Select a driver above to edit their profile.</p>
+                        <input type="text" id="edit-driver-full-name" placeholder="Full Name">
+                        <input type="text" id="edit-driver-whatsapp-phone" placeholder="WhatsApp Phone">
+                        <input type="text" id="edit-driver-vehicle-type-color" placeholder="Vehicle Type & Color">
+                        <input type="text" id="edit-driver-license-plate" placeholder="License Plate Number">
+                        <input type="text" id="edit-driver-drivers-license-number" placeholder="Driver's License Number">
+                        <input type="text" id="edit-driver-insurance-number" placeholder="Insurance Number">
+                        <button onclick="updateDriverProfile()">Update Driver Profile</button>
+                    </div>
 
-        <div id="addDriverModal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <h3>Add New Driver</h3>
-                <form id="newDriverForm">
-                    <label for="newDriverId">Driver ID:</label>
-                    <input type="text" id="newDriverId" required>
-                    <label for="newDriverName">Driver Name:</label>
-                    <input type="text" id="newDriverName">
-                    <button type="submit">Add Driver</button>
-                </form>
-            </div>
-        </div>
+                    <div class="admin-section">
+                        <h2>Upload Driver Pictures</h2>
+                        <select id="select-driver-for-pictures" onchange="loadDriverPicturesForAdmin()">
+                            <option value="">-- Select Driver --</option>
+                        </select>
+                        <hr style="border-color:#555;">
+                        <h3>Driver Picture</h3>
+                        <input type="file" id="upload-driver-picture" accept="image/*">
+                        <img id="preview-driver-picture" class="admin-image-preview" src="" style="display:none;">
+                        <button onclick="uploadPicture('driverPicture')">Upload Driver Picture</button>
+                        <hr style="border-color:#555;">
+                        <h3>Vehicle Picture</h3>
+                        <input type="file" id="upload-vehicle-picture" accept="image/*">
+                        <img id="preview-vehicle-picture" class="admin-image-preview" src="" style="display:none;">
+                        <button onclick="uploadPicture('vehiclePicture')">Upload Vehicle Picture</button>
+                        <hr style="border-color:#555;">
+                        <h3>Insurance Picture</h3>
+                        <input type="file" id="upload-insurance-picture" accept="image/*">
+                        <img id="preview-insurance-picture" class="admin-image-preview" src="" style="display:none;">
+                        <button onclick="uploadPicture('insurancePicture')">Upload Insurance Picture</button>
+                    </div>
 
-        <div id="apiResponseAlert" class="alert" style="display:none;"></div>
+                    <div class="admin-section">
+                        <h2>Manage Driver Rides & Earnings</h2>
+                        <select id="select-driver-for-rides" onchange="loadRidesForAdmin()">
+                            <option value="">-- Select Driver --</option>
+                        </select>
+                        <p class="support-message" style="margin-top:10px;">
+                            (Adding/removing rides here directly impacts the Leaderboard.)
+                        </p>
+                        <h3>Add New Ride</h3>
+                        <input type="text" id="new-ride-origin" placeholder="Origin">
+                        <input type="text" id="new-ride-destination" placeholder="Destination">
+                        <input type="number" id="new-ride-fare" placeholder="Fare" step="0.01">
+                        <button onclick="addRideToDriver()">Add Ride</button>
 
-    </div> <script src="driver.js"></script>
+                        <h3>Current Rides for Selected Driver</h3>
+                        <table id="admin-rides-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Origin</th>
+                                    <th>Destination</th>
+                                    <th>Fare</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
 
+                    <div class="admin-section">
+                        <h2>Manage Commissions</h2>
+                        <select id="select-driver-for-commissions" onchange="loadCommissionsForAdmin()">
+                            <option value="">-- Select Driver --</option>
+                        </select>
+                        <p>Current Commission Due: <strong id="admin-commission-amount">$0.00</strong></p>
+                        <p>Current Due Date: <strong id="admin-commission-due-date">N/A</strong></p>
+                        <h3>Set Commission & Due Date</h3>
+                        <input type="number" id="set-commission-amount" placeholder="Commission Amount Due" step="0.01">
+                        <input type="date" id="set-commission-due-date">
+                        <button onclick="setDriverCommission()">Set Commission</button>
+                    </div>
+
+                    <div class="admin-section">
+                        <h2>General Settings</h2>
+                        <h3>Edit Driver Notes</h3>
+                        <textarea id="admin-driver-notes" rows="5" placeholder="Enter notes for drivers..."></textarea>
+                        <button onclick="updateDriverNotes()">Update Notes</button>
+                        <h3>Data Management</h3>
+                        <button onclick="downloadData()">Download All Data</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // API Base URL (must match the deployed worker URL)
+        const API_BASE_URL = 'https://driver-auth-worker.blackcarpetridesharelogistics.workers.dev';
+
+        // --- User Session Management ---
+        let loggedInDriverId = null;
+        let isAdmin = false;
+        let currentAdminUsername = null;
+
+        // Phone number for WhatsApp payment requests
+        const WHATSAPP_NUMBER = '18683568145';
+
+        // --- Page Initialization ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminSetupSection = document.getElementById('admin-setup-section');
+            const loginSection = document.getElementById('login-section');
+
+            try {
+                // Check if admin is set up
+                const response = await fetch(`${API_BASE_URL}/api/auth/status`);
+                const data = await response.json();
+                if (data.isAdminSetup) {
+                    showSection('login-section', false);
+                    document.querySelector('header').style.display = 'block';
+                } else {
+                    showSection('admin-setup-section', false);
+                    document.querySelector('header').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                alert('Could not connect to the server. Please try again later.');
+                showSection('admin-setup-section', false); // Assume not set up on error
+            }
+        });
+
+        // --- Navigation and View Management ---
+        function showSection(sectionId, updateNav = false) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            if (updateNav) {
+                document.querySelectorAll('.nav-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                const targetButton = Array.from(document.querySelectorAll('.nav-button')).find(btn =>
+                    btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${sectionId}'`)
+                );
+                if (targetButton) {
+                    targetButton.classList.add('active');
+                }
+            }
+
+            // Load data for the shown section
+            if (sectionId === 'rides-earnings' && loggedInDriverId) {
+                loadDriverRides();
+            } else if (sectionId === 'profile' && loggedInDriverId) {
+                loadDriverProfile();
+            } else if (sectionId === 'commissions' && loggedInDriverId) {
+                loadDriverCommissions();
+            } else if (sectionId === 'leaderboard') {
+                loadLeaderboard();
+            } else if (sectionId === 'admin-dashboard' && isAdmin) {
+                loadAdminDashboard();
+            }
+        }
+
+        // --- Admin Setup/Login/Logout Functions ---
+        async function setupAdmin() {
+            const username = document.getElementById('admin-setup-username').value;
+            const password = document.getElementById('admin-setup-password').value;
+
+            if (!username || !password) {
+                alert('Please enter a username and password.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/setup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Admin setup successful! You can now log in.');
+                    showLogin();
+                    document.querySelector('header').style.display = 'block';
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during admin setup:', error);
+                alert('Could not connect to the server. Please try again later.');
+            }
+        }
+
+        function showAdminLogin() {
+            document.getElementById('login-section').classList.remove('active');
+            document.getElementById('admin-login-section').classList.add('active');
+            document.getElementById('driver-id-input').value = '';
+        }
+
+        function showLogin() {
+            document.getElementById('admin-setup-section').classList.remove('active');
+            document.getElementById('admin-login-section').classList.remove('active');
+            document.getElementById('login-section').classList.add('active');
+            document.getElementById('admin-username-input').value = '';
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('driver-nav').style.display = 'none';
+            document.getElementById('admin-nav').style.display = 'none';
+        }
+
+        async function loginAdmin() {
+            const username = document.getElementById('admin-username-input').value;
+            const password = document.getElementById('admin-password-input').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Successful login
+                    isAdmin = true;
+                    currentAdminUsername = username;
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('admin-login-section').style.display = 'none';
+                    document.getElementById('driver-nav').style.display = 'none';
+                    document.getElementById('admin-nav').style.display = 'flex';
+                    showSection('admin-dashboard', true);
+                    loadDriverNotes(); // Load notes for the header
+                } else {
+                    alert(`Login failed: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during admin login:', error);
+                alert('Could not connect to the server. Please try again later.');
+            }
+        }
+
+        function logout() {
+            loggedInDriverId = null;
+            isAdmin = false;
+            currentAdminUsername = null;
+            document.getElementById('driver-id-input').value = '';
+            document.getElementById('admin-username-input').value = '';
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('driver-nav').style.display = 'none';
+            document.getElementById('admin-nav').style.display = 'none';
+            showSection('login-section', false);
+        }
+
+        // --- Driver Login/Logout Functions ---
+        async function loginDriver() {
+            const driverIdInput = document.getElementById('driver-id-input').value.trim().toUpperCase();
+
+            if (!driverIdInput) {
+                alert('Please enter a Driver ID.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/driver-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ driverId: driverIdInput })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    loggedInDriverId = driverIdInput;
+                    isAdmin = false;
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('admin-login-section').style.display = 'none';
+                    document.getElementById('driver-nav').style.display = 'flex';
+                    document.getElementById('admin-nav').style.display = 'none';
+                    loadDriverNotes(); // Load notes for the header
+                    showSection('rides-earnings', true);
+                } else {
+                    alert(`Login failed: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during driver login:', error);
+                alert('Could not connect to the server. Please try again later.');
+            }
+        }
+
+        // --- Data Loading Functions ---
+        // New function to load driver notes from the API
+        async function loadDriverNotes() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/notes/get`);
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('driver-notes').textContent = data.notes;
+                } else {
+                    console.error('Failed to load driver notes:', data.message);
+                }
+            } catch (error) {
+                console.error('Network or API error during notes fetch:', error);
+            }
+        }
+
+        async function loadDriverRides() {
+            if (!loggedInDriverId) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/driver/rides?driverId=${loggedInDriverId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const driver = data.driver;
+                    const ridesTableBody = document.querySelector('#rides-table tbody');
+                    ridesTableBody.innerHTML = '';
+                    const totalRides = driver.rides.length;
+                    const totalEarnings = driver.rides.reduce((sum, ride) => sum + (ride.fare || 0), 0);
+
+                    document.getElementById('total-rides').textContent = totalRides;
+                    document.getElementById('total-earnings').textContent = `$${totalEarnings.toFixed(2)}`;
+
+                    driver.rides.forEach(ride => {
+                        const row = ridesTableBody.insertRow();
+                        row.insertCell().textContent = ride.id;
+                        row.insertCell().textContent = ride.date;
+                        row.insertCell().textContent = ride.origin;
+                        row.insertCell().textContent = ride.destination;
+                        row.insertCell().textContent = `$${ride.fare.toFixed(2)}`;
+                    });
+                } else {
+                    console.error('Failed to load driver rides:', data.message);
+                    alert('Error loading rides.');
+                }
+            } catch (error) {
+                console.error('Network or API error during ride fetch:', error);
+                alert('Could not load rides from the server.');
+            }
+        }
+
+        async function loadDriverProfile() {
+            if (!loggedInDriverId) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/driver/profile?driverId=${loggedInDriverId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    const driver = data.driver;
+                    document.getElementById('profile-full-name').textContent = driver.fullName;
+                    document.getElementById('profile-id').textContent = driver.id;
+                    document.getElementById('profile-whatsapp-phone').textContent = driver.whatsappPhone;
+                    document.getElementById('profile-vehicle-type-color').textContent = driver.vehicleTypeColor;
+                    document.getElementById('profile-license-plate').textContent = driver.licensePlate;
+                    document.getElementById('profile-drivers-license-number').textContent = driver.driversLicenseNumber;
+                    document.getElementById('profile-insurance-number').textContent = driver.insuranceNumber;
+
+                    // Display images if available
+                    updateProfileImage('profile-driver-picture', 'driver-picture-link', driver.pictures.driverPicture);
+                    updateProfileImage('profile-vehicle-picture', 'vehicle-picture-link', driver.pictures.vehiclePicture);
+                    updateProfileImage('profile-insurance-picture', 'insurance-picture-link', driver.pictures.insurancePicture);
+
+                } else {
+                    console.error('Failed to load driver profile:', data.message);
+                    alert('Error loading profile.');
+                }
+            } catch (error) {
+                console.error('Network or API error during profile fetch:', error);
+                alert('Could not load profile from the server.');
+            }
+        }
+
+        function updateProfileImage(imgId, linkId, imageUrl) {
+            const imgElement = document.getElementById(imgId);
+            const linkElement = document.getElementById(linkId);
+            const placeholderElement = document.getElementById(imgId + '-placeholder');
+
+            if (imageUrl) {
+                imgElement.src = imageUrl;
+                linkElement.href = imageUrl;
+                linkElement.style.display = 'inline-block';
+                if(placeholderElement) placeholderElement.style.display = 'none';
+            } else {
+                linkElement.style.display = 'none';
+                if(placeholderElement) placeholderElement.style.display = 'block';
+            }
+        }
+
+        async function loadDriverCommissions() {
+            if (!loggedInDriverId) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/driver/commissions?driverId=${loggedInDriverId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('commission-amount').textContent = `$${data.commissionDue.toFixed(2)}`;
+                    document.getElementById('commission-due-date').textContent = data.commissionDueDate || 'N/A';
+                    // Generate WhatsApp link
+                    const message = `I would like to pay my commission of $${data.commissionDue.toFixed(2)} due on ${data.commissionDueDate}. Driver ID: ${loggedInDriverId}`;
+                    const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                    document.getElementById('whatsapp-payment-link').href = whatsappLink;
+                } else {
+                    console.error('Failed to load commissions:', data.message);
+                    alert('Error loading commissions.');
+                }
+            } catch (error) {
+                console.error('Network or API error during commission fetch:', error);
+                alert('Could not load commissions from the server.');
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
+                const data = await response.json();
+                if (response.ok) {
+                    const leaderboard = data.leaderboard;
+                    const chart = document.querySelector('.leaderboard-chart');
+                    // Clear previous leaderboard data except for the top 3 placeholders
+                    chart.querySelectorAll('.place:not(.first-place):not(.second-place):not(.third-place)').forEach(el => el.remove());
+                    document.getElementById('remaining-leaderboard').innerHTML = '';
+
+                    const top3 = [
+                        document.querySelector('.first-place'),
+                        document.querySelector('.second-place'),
+                        document.querySelector('.third-place')
+                    ];
+
+                    top3.forEach((el, index) => {
+                        const driver = leaderboard[index];
+                        if (driver) {
+                            el.querySelector('.driver-name').textContent = driver.fullName;
+                            el.querySelector('.rides').textContent = `${driver.rides} rides`;
+                        } else {
+                            el.querySelector('.driver-name').textContent = 'N/A';
+                            el.querySelector('.rides').textContent = '0 rides';
+                        }
+                    });
+
+                    // Populate the rest of the leaderboard
+                    const remainingDrivers = leaderboard.slice(3);
+                    remainingDrivers.forEach((driver, index) => {
+                        const newPlace = document.createElement('div');
+                        newPlace.className = 'place';
+                        newPlace.innerHTML = `
+                            <span class="rank">${index + 4}th</span>
+                            <span class="driver-name">${driver.fullName}</span>
+                            <span class="rides">${driver.rides} rides</span>
+                        `;
+                        document.getElementById('remaining-leaderboard').appendChild(newPlace);
+                    });
+                } else {
+                    console.error('Failed to load leaderboard:', data.message);
+                    alert('Error loading leaderboard.');
+                }
+            } catch (error) {
+                console.error('Network or API error during leaderboard fetch:', error);
+                alert('Could not load leaderboard from the server.');
+            }
+        }
+
+        // --- Admin Dashboard Functions ---
+        async function loadAdminDashboard() {
+            if (!isAdmin) return;
+
+            try {
+                // Fetch drivers for all dropdowns
+                const response = await fetch(`${API_BASE_URL}/api/admin/drivers`);
+                const data = await response.json();
+                if (response.ok) {
+                    const drivers = data.drivers;
+                    const driverDropdowns = [
+                        document.getElementById('select-driver-to-manage'),
+                        document.getElementById('select-driver-for-pictures'),
+                        document.getElementById('select-driver-for-rides'),
+                        document.getElementById('select-driver-for-commissions')
+                    ];
+
+                    driverDropdowns.forEach(dropdown => {
+                        dropdown.innerHTML = '<option value="">-- Select Driver --</option>'; // Clear and add default
+                        drivers.forEach(driver => {
+                            const option = document.createElement('option');
+                            option.value = driver.id;
+                            option.textContent = `${driver.fullName} (${driver.id})`;
+                            dropdown.appendChild(option);
+                        });
+                    });
+
+                    // Load driver notes into the admin textarea
+                    loadAdminDriverNotes();
+                } else {
+                    console.error('Failed to load drivers for admin dashboard:', data.message);
+                }
+            } catch (error) {
+                console.error('Network or API error during admin dashboard fetch:', error);
+            }
+        }
+
+        async function loadAdminDriverNotes() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/notes/get`);
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('admin-driver-notes').value = data.notes;
+                }
+            } catch (error) {
+                console.error('Failed to load driver notes for admin:', error);
+            }
+        }
+
+        async function addDriver() {
+            const fullName = document.getElementById('add-driver-full-name').value.trim();
+            const driverId = document.getElementById('add-driver-id').value.trim().toUpperCase();
+
+            if (!fullName || !driverId) {
+                alert('Please enter a full name and a driver ID.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/add-driver`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, driverId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(`Driver ${driverId} added successfully!`);
+                    document.getElementById('add-driver-full-name').value = '';
+                    document.getElementById('add-driver-id').value = '';
+                    loadAdminDashboard(); // Refresh the dashboard
+                } else {
+                    alert(`Error adding driver: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during add driver:', error);
+            }
+        }
+        
+        async function removeDriver() {
+            const driverId = document.getElementById('select-driver-to-manage').value;
+            if (!driverId) {
+                alert('Please select a driver to remove.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to remove driver ${driverId}? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/remove-driver`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ driverId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(`Driver ${driverId} removed successfully.`);
+                    loadAdminDashboard(); // Refresh the dashboard
+                } else {
+                    alert(`Error removing driver: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during remove driver:', error);
+            }
+        }
+
+        async function loadDriverForEdit() {
+            const driverId = document.getElementById('select-driver-to-manage').value;
+            if (!driverId) {
+                // Clear the form if no driver is selected
+                document.getElementById('edit-driver-full-name').value = '';
+                document.getElementById('edit-driver-whatsapp-phone').value = '';
+                document.getElementById('edit-driver-vehicle-type-color').value = '';
+                document.getElementById('edit-driver-license-plate').value = '';
+                document.getElementById('edit-driver-drivers-license-number').value = '';
+                document.getElementById('edit-driver-insurance-number').value = '';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/driver-profile?driverId=${driverId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    const driver = data.driver;
+                    document.getElementById('edit-driver-full-name').value = driver.fullName;
+                    document.getElementById('edit-driver-whatsapp-phone').value = driver.whatsappPhone;
+                    document.getElementById('edit-driver-vehicle-type-color').value = driver.vehicleTypeColor;
+                    document.getElementById('edit-driver-license-plate').value = driver.licensePlate;
+                    document.getElementById('edit-driver-drivers-license-number').value = driver.driversLicenseNumber;
+                    document.getElementById('edit-driver-insurance-number').value = driver.insuranceNumber;
+                } else {
+                    alert(`Error loading driver profile: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during profile load:', error);
+            }
+        }
+
+        async function updateDriverProfile() {
+            const driverId = document.getElementById('select-driver-to-manage').value;
+            const fullName = document.getElementById('edit-driver-full-name').value;
+            const whatsappPhone = document.getElementById('edit-driver-whatsapp-phone').value;
+            const vehicleTypeColor = document.getElementById('edit-driver-vehicle-type-color').value;
+            const licensePlate = document.getElementById('edit-driver-license-plate').value;
+            const driversLicenseNumber = document.getElementById('edit-driver-drivers-license-number').value;
+            const insuranceNumber = document.getElementById('edit-driver-insurance-number').value;
+
+            if (!driverId) {
+                alert('Please select a driver to update.');
+                return;
+            }
+
+            const updatedProfile = {
+                driverId,
+                fullName,
+                whatsappPhone,
+                vehicleTypeColor,
+                licensePlate,
+                driversLicenseNumber,
+                insuranceNumber
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/update-driver-profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedProfile)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Driver profile updated successfully!');
+                    loadDriverForEdit(); // Reload the profile to confirm changes
+                } else {
+                    alert(`Error updating profile: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during profile update:', error);
+            }
+        }
+
+        async function loadDriverPicturesForAdmin() {
+            const driverId = document.getElementById('select-driver-for-pictures').value;
+            const previewIds = ['preview-driver-picture', 'preview-vehicle-picture', 'preview-insurance-picture'];
+            previewIds.forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            if (!driverId) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/driver-pictures?driverId=${driverId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    if (data.driverPicture) {
+                        document.getElementById('preview-driver-picture').src = data.driverPicture;
+                        document.getElementById('preview-driver-picture').style.display = 'block';
+                    }
+                    if (data.vehiclePicture) {
+                        document.getElementById('preview-vehicle-picture').src = data.vehiclePicture;
+                        document.getElementById('preview-vehicle-picture').style.display = 'block';
+                    }
+                    if (data.insurancePicture) {
+                        document.getElementById('preview-insurance-picture').src = data.insurancePicture;
+                        document.getElementById('preview-insurance-picture').style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading driver pictures for admin:', error);
+            }
+        }
+
+        async function uploadPicture(pictureType) {
+            const driverId = document.getElementById('select-driver-for-pictures').value;
+            if (!driverId) {
+                alert('Please select a driver first.');
+                return;
+            }
+            const fileInput = document.getElementById(`upload-${pictureType}-picture`);
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('driverId', driverId);
+            formData.append('pictureType', pictureType);
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/upload-picture`, {
+                    method: 'POST',
+                    body: formData,
+                    // No 'Content-Type' header needed for FormData; browser sets it automatically
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Picture uploaded successfully!');
+                    loadDriverPicturesForAdmin(); // Refresh preview
+                } else {
+                    alert(`Error uploading picture: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during picture upload:', error);
+            }
+        }
+        
+        async function loadRidesForAdmin() {
+            const driverId = document.getElementById('select-driver-for-rides').value;
+            const ridesTableBody = document.querySelector('#admin-rides-table tbody');
+            ridesTableBody.innerHTML = '';
+            if (!driverId) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/driver-rides?driverId=${driverId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    data.rides.forEach(ride => {
+                        const row = ridesTableBody.insertRow();
+                        row.innerHTML = `
+                            <td>${ride.id}</td>
+                            <td>${ride.date}</td>
+                            <td>${ride.origin}</td>
+                            <td>${ride.destination}</td>
+                            <td>$${ride.fare.toFixed(2)}</td>
+                            <td><button onclick="removeRideFromDriver('${driverId}', '${ride.id}')">Delete</button></td>
+                        `;
+                    });
+                } else {
+                    alert(`Error loading rides: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during ride fetch for admin:', error);
+            }
+        }
+
+        async function addRideToDriver() {
+            const driverId = document.getElementById('select-driver-for-rides').value;
+            const origin = document.getElementById('new-ride-origin').value;
+            const destination = document.getElementById('new-ride-destination').value;
+            const fare = parseFloat(document.getElementById('new-ride-fare').value);
+
+            if (!driverId || !origin || !destination || isNaN(fare)) {
+                alert('Please select a driver and fill out all ride details correctly.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/add-ride`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ driverId, origin, destination, fare })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Ride added successfully!');
+                    document.getElementById('new-ride-origin').value = '';
+                    document.getElementById('new-ride-destination').value = '';
+                    document.getElementById('new-ride-fare').value = '';
+                    loadRidesForAdmin(); // Refresh the rides table
+                    loadLeaderboard(); // Update the leaderboard
+                } else {
+                    alert(`Error adding ride: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during add ride:', error);
+            }
+        }
+
+        async function removeRideFromDriver(driverId, rideId) {
+            if (!confirm(`Are you sure you want to delete ride ${rideId} for driver ${driverId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/remove-ride`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ driverId, rideId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Ride removed successfully!');
+                    loadRidesForAdmin(); // Refresh the rides table
+                    loadLeaderboard(); // Update the leaderboard
+                } else {
+                    alert(`Error removing ride: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during remove ride:', error);
+            }
+        }
+        
+        async function loadCommissionsForAdmin() {
+            const driverId = document.getElementById('select-driver-for-commissions').value;
+            if (!driverId) {
+                document.getElementById('admin-commission-amount').textContent = '$0.00';
+                document.getElementById('admin-commission-due-date').textContent = 'N/A';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/commissions?driverId=${driverId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('admin-commission-amount').textContent = `$${data.commissionDue.toFixed(2)}`;
+                    document.getElementById('admin-commission-due-date').textContent = data.commissionDueDate || 'N/A';
+                } else {
+                    alert(`Error loading commissions: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during commission fetch for admin:', error);
+            }
+        }
+
+        async function setDriverCommission() {
+            const driverId = document.getElementById('select-driver-for-commissions').value;
+            const amount = parseFloat(document.getElementById('set-commission-amount').value);
+            const dueDate = document.getElementById('set-commission-due-date').value;
+
+            if (!driverId || isNaN(amount) || !dueDate) {
+                alert('Please select a driver and fill out all commission details.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/set-commission`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ driverId, amount, dueDate })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Commission set successfully!');
+                    loadCommissionsForAdmin(); // Refresh the display
+                } else {
+                    alert(`Error setting commission: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during commission set:', error);
+            }
+        }
+
+        async function updateDriverNotes() {
+            const notes = document.getElementById('admin-driver-notes').value;
+            if (!notes) {
+                alert('Notes cannot be empty.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/notes/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Driver notes updated successfully!');
+                    document.getElementById('driver-notes').textContent = notes; // Update the header note immediately
+                } else {
+                    alert(`Error updating notes: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during notes update:', error);
+            }
+        }
+
+        // --- Data Management Functions ---
+        async function downloadData() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/download-data`);
+                if (response.ok) {
+                    const data = await response.blob();
+                    const url = window.URL.createObjectURL(data);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `driver-data-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    alert('Data download started.');
+                } else {
+                    const error = await response.json();
+                    alert(`Error downloading data: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Network or API error during data download:', error);
+            }
+        }
+    </script>
 </body>
 </html>
