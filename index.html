@@ -932,55 +932,55 @@
             }
         }
 
-        async function loadLeaderboard() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
-                const data = await response.json();
-                if (response.ok) {
-                    const leaderboard = data.leaderboard;
-                    const chart = document.querySelector('.leaderboard-chart');
-                    // Clear previous leaderboard data except for the top 3 placeholders
-                    chart.querySelectorAll('.place:not(.first-place):not(.second-place):not(.third-place)').forEach(el => el.remove());
-                    document.getElementById('remaining-leaderboard').innerHTML = '';
+       async function loadLeaderboard() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
+        const data = await response.json();
+        if (response.ok) {
+            const leaderboard = data.leaderboard;
 
-                    const top3 = [
-                        document.querySelector('.first-place'),
-                        document.querySelector('.second-place'),
-                        document.querySelector('.third-place')
-                    ];
+            // Clear previous leaderboard data except for the top 3 placeholders
+            document.getElementById('remaining-leaderboard').innerHTML = '';
 
-                    top3.forEach((el, index) => {
-                        const driver = leaderboard[index];
-                        if (driver) {
-                            el.querySelector('.driver-name').textContent = driver.fullName;
-                            el.querySelector('.rides').textContent = `${driver.rides} rides`;
-                        } else {
-                            el.querySelector('.driver-name').textContent = 'N/A';
-                            el.querySelector('.rides').textContent = '0 rides';
-                        }
-                    });
+            const top3 = [
+                document.querySelector('.first-place'),
+                document.querySelector('.second-place'),
+                document.querySelector('.third-place')
+            ];
 
-                    // Populate the rest of the leaderboard
-                    const remainingDrivers = leaderboard.slice(3);
-                    remainingDrivers.forEach((driver, index) => {
-                        const newPlace = document.createElement('div');
-                        newPlace.className = 'place';
-                        newPlace.innerHTML = `
-                            <span class="rank">${index + 4}th</span>
-                            <span class="driver-name">${driver.fullName}</span>
-                            <span class="rides">${driver.rides} rides</span>
-                        `;
-                        document.getElementById('remaining-leaderboard').appendChild(newPlace);
-                    });
+            // Safely update the top 3 placeholders
+            top3.forEach((el, index) => {
+                const driver = leaderboard[index];
+                if (driver) {
+                    el.querySelector('.driver-name').textContent = driver.fullName;
+                    el.querySelector('.rides').textContent = `${driver.rides} rides`;
                 } else {
-                    console.error('Failed to load leaderboard:', data.message);
-                    alert('Error loading leaderboard.');
+                    el.querySelector('.driver-name').textContent = 'N/A';
+                    el.querySelector('.rides').textContent = '0 rides';
                 }
-            } catch (error) {
-                console.error('Network or API error during leaderboard fetch:', error);
-                alert('Could not load leaderboard from the server.');
-            }
+            });
+
+            // Populate the rest of the leaderboard
+            const remainingDrivers = leaderboard.slice(3);
+            remainingDrivers.forEach((driver, index) => {
+                const newPlace = document.createElement('div');
+                newPlace.className = 'place';
+                newPlace.innerHTML = `
+                    <span class="rank">${index + 4}th</span>
+                    <span class="driver-name">${driver.fullName}</span>
+                    <span class="rides">${driver.rides} rides</span>
+                `;
+                document.getElementById('remaining-leaderboard').appendChild(newPlace);
+            });
+        } else {
+            console.error('Failed to load leaderboard:', data.message);
+            alert('Error loading leaderboard.');
         }
+    } catch (error) {
+        console.error('Network or API error during leaderboard fetch:', error);
+        alert('Could not load leaderboard from the server.');
+    }
+}
 
         // --- Admin Dashboard Functions ---
         async function loadAdminDashboard() {
