@@ -713,6 +713,7 @@
             } catch (error) {
                 console.error('Network or API error during admin setup:', error);
                 alert('Could not connect to the server. Please try again later.');
+                showSection('admin-setup-section', false); // Assume not set up on error
             }
         }
 
@@ -919,7 +920,7 @@
                     document.getElementById('commission-amount').textContent = `$${data.commissionDue.toFixed(2)}`;
                     document.getElementById('commission-due-date').textContent = data.commissionDueDate || 'N/A';
                     // Generate WhatsApp link
-                    const message = `I would like to pay my commission of $${data.commissionDue.toFixed(2)} due on ${data.commissionDueDate}. Driver ID: ${loggedInDriverId}`;
+                    const message = `I would like to pay my commission of ${data.commissionDue.toFixed(2)} due on ${data.commissionDueDate}. Driver ID: ${loggedInDriverId}`;
                     const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
                     document.getElementById('whatsapp-payment-link').href = whatsappLink;
                 } else {
@@ -932,55 +933,56 @@
             }
         }
 
-       async function loadLeaderboard() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
-        const data = await response.json();
-        if (response.ok) {
-            const leaderboard = data.leaderboard;
+        // --- CORRECTED loadLeaderboard() FUNCTION ---
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
+                const data = await response.json();
+                if (response.ok) {
+                    const leaderboard = data.leaderboard;
 
-            // Clear previous leaderboard data except for the top 3 placeholders
-            document.getElementById('remaining-leaderboard').innerHTML = '';
+                    // Clear previous leaderboard data from the dynamic container
+                    document.getElementById('remaining-leaderboard').innerHTML = '';
 
-            const top3 = [
-                document.querySelector('.first-place'),
-                document.querySelector('.second-place'),
-                document.querySelector('.third-place')
-            ];
+                    const top3 = [
+                        document.querySelector('.first-place'),
+                        document.querySelector('.second-place'),
+                        document.querySelector('.third-place')
+                    ];
 
-            // Safely update the top 3 placeholders
-            top3.forEach((el, index) => {
-                const driver = leaderboard[index];
-                if (driver) {
-                    el.querySelector('.driver-name').textContent = driver.fullName;
-                    el.querySelector('.rides').textContent = `${driver.rides} rides`;
+                    // Safely update the top 3 placeholders
+                    top3.forEach((el, index) => {
+                        const driver = leaderboard[index];
+                        if (driver) {
+                            el.querySelector('.driver-name').textContent = driver.fullName;
+                            el.querySelector('.rides').textContent = `${driver.rides} rides`;
+                        } else {
+                            el.querySelector('.driver-name').textContent = 'N/A';
+                            el.querySelector('.rides').textContent = '0 rides';
+                        }
+                    });
+
+                    // Populate the rest of the leaderboard
+                    const remainingDrivers = leaderboard.slice(3);
+                    remainingDrivers.forEach((driver, index) => {
+                        const newPlace = document.createElement('div');
+                        newPlace.className = 'place';
+                        newPlace.innerHTML = `
+                            <span class="rank">${index + 4}th</span>
+                            <span class="driver-name">${driver.fullName}</span>
+                            <span class="rides">${driver.rides} rides</span>
+                        `;
+                        document.getElementById('remaining-leaderboard').appendChild(newPlace);
+                    });
                 } else {
-                    el.querySelector('.driver-name').textContent = 'N/A';
-                    el.querySelector('.rides').textContent = '0 rides';
+                    console.error('Failed to load leaderboard:', data.message);
+                    alert('Error loading leaderboard.');
                 }
-            });
-
-            // Populate the rest of the leaderboard
-            const remainingDrivers = leaderboard.slice(3);
-            remainingDrivers.forEach((driver, index) => {
-                const newPlace = document.createElement('div');
-                newPlace.className = 'place';
-                newPlace.innerHTML = `
-                    <span class="rank">${index + 4}th</span>
-                    <span class="driver-name">${driver.fullName}</span>
-                    <span class="rides">${driver.rides} rides</span>
-                `;
-                document.getElementById('remaining-leaderboard').appendChild(newPlace);
-            });
-        } else {
-            console.error('Failed to load leaderboard:', data.message);
-            alert('Error loading leaderboard.');
+            } catch (error) {
+                console.error('Network or API error during leaderboard fetch:', error);
+                alert('Could not load leaderboard from the server.');
+            }
         }
-    } catch (error) {
-        console.error('Network or API error during leaderboard fetch:', error);
-        alert('Could not load leaderboard from the server.');
-    }
-}
 
         // --- Admin Dashboard Functions ---
         async function loadAdminDashboard() {
@@ -1228,44 +1230,17 @@
                 console.error('Network or API error during picture upload:', error);
             }
         }
-        
-        async function loadRidesForAdmin() {
-            const driverId = document.getElementById('select-driver-for-rides').value;
-            const ridesTableBody = document.querySelector('#admin-rides-table tbody');
-            ridesTableBody.innerHTML = '';
-            if (!driverId) return;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/driver-rides?driverId=${driverId}`);
-                const data = await response.json();
-                if (response.ok) {
-                    data.rides.forEach(ride => {
-                        const row = ridesTableBody.insertRow();
-                        row.innerHTML = `
-                            <td>${ride.id}</td>
-                            <td>${ride.date}</td>
-                            <td>${ride.origin}</td>
-                            <td>${ride.destination}</td>
-                            <td>$${ride.fare.toFixed(2)}</td>
-                            <td><button onclick="removeRideFromDriver('${driverId}', '${ride.id}')">Delete</button></td>
-                        `;
-                    });
-                } else {
-                    alert(`Error loading rides: ${data.message}`);
-                }
-            } catch (error) {
-                console.error('Network or API error during ride fetch for admin:', error);
-            }
-        }
 
         async function addRideToDriver() {
             const driverId = document.getElementById('select-driver-for-rides').value;
             const origin = document.getElementById('new-ride-origin').value;
             const destination = document.getElementById('new-ride-destination').value;
             const fare = parseFloat(document.getElementById('new-ride-fare').value);
+            const rideId = `R${Date.now()}`;
+            const date = new Date().toISOString();
 
             if (!driverId || !origin || !destination || isNaN(fare)) {
-                alert('Please select a driver and fill out all ride details correctly.');
+                alert('Please fill out all fields correctly.');
                 return;
             }
 
@@ -1273,16 +1248,16 @@
                 const response = await fetch(`${API_BASE_URL}/api/admin/add-ride`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ driverId, origin, destination, fare })
+                    body: JSON.stringify({ driverId, rideId, date, origin, destination, fare })
                 });
+
                 const data = await response.json();
                 if (response.ok) {
                     alert('Ride added successfully!');
                     document.getElementById('new-ride-origin').value = '';
                     document.getElementById('new-ride-destination').value = '';
                     document.getElementById('new-ride-fare').value = '';
-                    loadRidesForAdmin(); // Refresh the rides table
-                    loadLeaderboard(); // Update the leaderboard
+                    loadRidesForAdmin(); // Refresh the rides list
                 } else {
                     alert(`Error adding ride: ${data.message}`);
                 }
@@ -1291,8 +1266,40 @@
             }
         }
 
+        async function loadRidesForAdmin() {
+            const driverId = document.getElementById('select-driver-for-rides').value;
+            const ridesTableBody = document.querySelector('#admin-rides-table tbody');
+            ridesTableBody.innerHTML = '';
+            if (!driverId) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/driver/rides?driverId=${driverId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    data.driver.rides.forEach(ride => {
+                        const row = ridesTableBody.insertRow();
+                        row.insertCell().textContent = ride.id;
+                        row.insertCell().textContent = ride.date;
+                        row.insertCell().textContent = ride.origin;
+                        row.insertCell().textContent = ride.destination;
+                        row.insertCell().textContent = `$${ride.fare.toFixed(2)}`;
+                        const actionCell = row.insertCell();
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.onclick = () => removeRideFromDriver(driverId, ride.id);
+                        actionCell.appendChild(deleteButton);
+                    });
+                } else {
+                    console.error('Failed to load rides for admin:', data.message);
+                }
+            } catch (error) {
+                console.error('Network or API error during admin ride fetch:', error);
+            }
+        }
+
         async function removeRideFromDriver(driverId, rideId) {
-            if (!confirm(`Are you sure you want to delete ride ${rideId} for driver ${driverId}?`)) {
+            if (!confirm(`Are you sure you want to remove ride ${rideId}?`)) {
                 return;
             }
 
@@ -1302,19 +1309,19 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ driverId, rideId })
                 });
+
                 const data = await response.json();
                 if (response.ok) {
                     alert('Ride removed successfully!');
-                    loadRidesForAdmin(); // Refresh the rides table
-                    loadLeaderboard(); // Update the leaderboard
+                    loadRidesForAdmin(); // Refresh the rides list
                 } else {
                     alert(`Error removing ride: ${data.message}`);
                 }
             } catch (error) {
-                console.error('Network or API error during remove ride:', error);
+                console.error('Network or API error during ride removal:', error);
             }
         }
-        
+
         async function loadCommissionsForAdmin() {
             const driverId = document.getElementById('select-driver-for-commissions').value;
             if (!driverId) {
@@ -1322,66 +1329,64 @@
                 document.getElementById('admin-commission-due-date').textContent = 'N/A';
                 return;
             }
-
             try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/commissions?driverId=${driverId}`);
+                const response = await fetch(`${API_BASE_URL}/api/driver/commissions?driverId=${driverId}`);
                 const data = await response.json();
                 if (response.ok) {
                     document.getElementById('admin-commission-amount').textContent = `$${data.commissionDue.toFixed(2)}`;
                     document.getElementById('admin-commission-due-date').textContent = data.commissionDueDate || 'N/A';
                 } else {
-                    alert(`Error loading commissions: ${data.message}`);
+                    console.error('Failed to load commissions for admin:', data.message);
                 }
             } catch (error) {
-                console.error('Network or API error during commission fetch for admin:', error);
+                console.error('Network or API error during admin commission fetch:', error);
             }
         }
 
         async function setDriverCommission() {
             const driverId = document.getElementById('select-driver-for-commissions').value;
-            const amount = parseFloat(document.getElementById('set-commission-amount').value);
-            const dueDate = document.getElementById('set-commission-due-date').value;
+            const commissionDue = parseFloat(document.getElementById('set-commission-amount').value);
+            const commissionDueDate = document.getElementById('set-commission-due-date').value;
 
-            if (!driverId || isNaN(amount) || !dueDate) {
-                alert('Please select a driver and fill out all commission details.');
+            if (!driverId || isNaN(commissionDue) || !commissionDueDate) {
+                alert('Please select a driver and provide a valid amount and date.');
                 return;
             }
-
+            
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/set-commission`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ driverId, amount, dueDate })
+                    body: JSON.stringify({ driverId, commissionDue, commissionDueDate })
                 });
+
                 const data = await response.json();
                 if (response.ok) {
                     alert('Commission set successfully!');
+                    document.getElementById('set-commission-amount').value = '';
+                    document.getElementById('set-commission-due-date').value = '';
                     loadCommissionsForAdmin(); // Refresh the display
                 } else {
                     alert(`Error setting commission: ${data.message}`);
                 }
             } catch (error) {
-                console.error('Network or API error during commission set:', error);
+                console.error('Network or API error during set commission:', error);
             }
         }
 
         async function updateDriverNotes() {
             const notes = document.getElementById('admin-driver-notes').value;
-            if (!notes) {
-                alert('Notes cannot be empty.');
-                return;
-            }
-
             try {
                 const response = await fetch(`${API_BASE_URL}/api/notes/update`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ notes })
                 });
+
                 const data = await response.json();
                 if (response.ok) {
                     alert('Driver notes updated successfully!');
-                    document.getElementById('driver-notes').textContent = notes; // Update the header note immediately
+                    loadDriverNotes(); // Refresh header notes
                 } else {
                     alert(`Error updating notes: ${data.message}`);
                 }
@@ -1390,27 +1395,26 @@
             }
         }
 
-        // --- Data Management Functions ---
         async function downloadData() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/download-data`);
+                const response = await fetch(`${API_BASE_URL}/api/admin/download`);
                 if (response.ok) {
-                    const data = await response.blob();
-                    const url = window.URL.createObjectURL(data);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = `driver-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.download = 'driver_data.json';
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
-                    alert('Data download started.');
                 } else {
-                    const error = await response.json();
-                    alert(`Error downloading data: ${error.message}`);
+                    const data = await response.json();
+                    alert(`Error downloading data: ${data.message}`);
                 }
             } catch (error) {
                 console.error('Network or API error during data download:', error);
+                alert('Could not download data from the server.');
             }
         }
     </script>
