@@ -629,6 +629,12 @@
         // Phone number for WhatsApp payment requests
         const WHATSAPP_NUMBER = '18683568145';
 
+        // Helper function to dynamically get the origin
+        function getOriginUrl() {
+            // This is the key fix to ensure the correct origin is sent
+            return window.location.origin;
+        }
+
         // --- Page Initialization ---
         document.addEventListener('DOMContentLoaded', async () => {
             const adminSetupSection = document.getElementById('admin-setup-section');
@@ -636,7 +642,11 @@
 
             try {
                 // Check if admin is set up
-                const response = await fetch(`${API_BASE_URL}/api/auth/status`);
+                const response = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    headers: {
+                        'Origin': getOriginUrl()
+                    }
+                });
                 const data = await response.json();
                 if (data.isAdminSetup) {
                     showSection('login-section', false);
@@ -698,7 +708,10 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/setup`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Origin': getOriginUrl() // Use dynamic origin
+                    },
                     body: JSON.stringify({ username, password })
                 });
 
@@ -740,7 +753,10 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Origin': getOriginUrl() // Use dynamic origin
+                    },
                     body: JSON.stringify({ username, password })
                 });
 
@@ -750,14 +766,14 @@
                     // Successful login
                     isAdmin = true;
                     currentAdminUsername = username;
-                    document.getElementById('login-section').style.display = 'none';
-                    document.getElementById('admin-login-section').style.display = 'none';
-                    document.getElementById('driver-nav').style.display = 'none';
+                    document.getElementById('admin-login-section').classList.remove('active');
                     document.getElementById('admin-nav').style.display = 'flex';
-                    showSection('admin-dashboard', true);
-                    loadDriverNotes(); // Load notes for the header
+                    showSection('admin-dashboard');
+                    // You can save the token in localStorage for persistent sessions if needed
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminUsername', username);
                 } else {
-                    alert(`Login failed: ${data.message}`);
+                    alert(`Error: ${data.message}`);
                 }
             } catch (error) {
                 console.error('Network or API error during admin login:', error);
@@ -765,70 +781,68 @@
             }
         }
 
-        function logout() {
+        async function logout() {
+            // Clear all session data
             loggedInDriverId = null;
             isAdmin = false;
             currentAdminUsername = null;
-            document.getElementById('driver-id-input').value = '';
-            document.getElementById('admin-username-input').value = '';
-            document.getElementById('admin-password-input').value = '';
-            document.getElementById('driver-nav').style.display = 'none';
-            document.getElementById('admin-nav').style.display = 'none';
-            showSection('login-section', false);
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUsername');
+            localStorage.removeItem('driverId');
+
+            // Reset UI
+            showLogin();
+            document.querySelector('header').style.display = 'block';
+            alert('You have been logged out.');
         }
 
-        // --- Driver Login/Logout Functions ---
+        // --- Driver Login Functions ---
         async function loginDriver() {
-            const driverIdInput = document.getElementById('driver-id-input').value.trim().toUpperCase();
-
-            if (!driverIdInput) {
-                alert('Please enter a Driver ID.');
-                return;
-            }
+            const driverId = document.getElementById('driver-id-input').value.toUpperCase();
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/driver-login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ driverId: driverIdInput })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Origin': getOriginUrl() // Use dynamic origin
+                    },
+                    body: JSON.stringify({ driverId })
                 });
 
                 const data = await response.json();
+
                 if (response.ok) {
-                    loggedInDriverId = driverIdInput;
-                    isAdmin = false;
-                    document.getElementById('login-section').style.display = 'none';
-                    document.getElementById('admin-login-section').style.display = 'none';
+                    loggedInDriverId = data.driverId;
+                    showSection('rides-earnings');
+                    document.getElementById('login-section').classList.remove('active');
                     document.getElementById('driver-nav').style.display = 'flex';
-                    document.getElementById('admin-nav').style.display = 'none';
-                    loadDriverNotes(); // Load notes for the header
-                    showSection('rides-earnings', true);
+                    localStorage.setItem('driverId', loggedInDriverId);
+                    loadDriverNotes(); // Load notes on successful login
                 } else {
-                    alert(`Login failed: ${data.message}`);
+                    alert(`Error: ${data.message}`);
                 }
             } catch (error) {
                 console.error('Network or API error during driver login:', error);
                 alert('Could not connect to the server. Please try again later.');
             }
         }
-
+        
         // --- Data Loading Functions ---
-        // New function to load driver notes from the API
         async function loadDriverNotes() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/notes/get`);
-                if (!response.ok) {
-                    console.error('API responded with an error:', response.status, response.statusText);
+                const response = await fetch(`${API_BASE_URL}/api/notes/get`, {
+                    headers: { 'Origin': getOriginUrl() }
+                });
+                if (response.ok) {
                     const data = await response.json();
-                    console.error('Error message from API:', data.message);
-                    document.getElementById('driver-notes').textContent = 'Error loading notes.';
-                    return;
+                    document.getElementById('driver-notes').textContent = data.notes;
+                } else {
+                    document.getElementById('driver-notes').textContent = 'Could not load notes.';
                 }
-                const data = await response.json();
-                document.getElementById('driver-notes').textContent = data.notes;
             } catch (error) {
-                console.error('Network or API error during notes fetch:', error);
-                document.getElementById('driver-notes').textContent = 'Could not load notes from the server.';
+                console.error('Error loading driver notes:', error);
+                document.getElementById('driver-notes').textContent = 'Could not load notes.';
             }
         }
 
@@ -836,34 +850,37 @@
             if (!loggedInDriverId) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/driver/rides?driverId=${loggedInDriverId}`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load driver rides:', response.status, response.statusText, data.message);
-                    alert('Error loading rides: ' + data.message);
-                    return;
-                }
-                const data = await response.json();
-                const driver = data.driver;
-                const ridesTableBody = document.querySelector('#rides-table tbody');
-                ridesTableBody.innerHTML = '';
-                const totalRides = driver.rides.length;
-                const totalEarnings = driver.rides.reduce((sum, ride) => sum + (ride.fare || 0), 0);
-
-                document.getElementById('total-rides').textContent = totalRides;
-                document.getElementById('total-earnings').textContent = `$${totalEarnings.toFixed(2)}`;
-
-                driver.rides.forEach(ride => {
-                    const row = ridesTableBody.insertRow();
-                    row.insertCell().textContent = ride.id;
-                    row.insertCell().textContent = new Date(ride.date).toLocaleDateString();
-                    row.insertCell().textContent = ride.origin;
-                    row.insertCell().textContent = ride.destination;
-                    row.insertCell().textContent = `$${(ride.fare || 0).toFixed(2)}`;
+                const response = await fetch(`${API_BASE_URL}/api/driver/rides?driverId=${loggedInDriverId}`, {
+                    headers: { 'Origin': getOriginUrl() }
                 });
+                const data = await response.json();
+                if (response.ok) {
+                    const driver = data.driver;
+                    const totalRidesElement = document.getElementById('total-rides');
+                    const totalEarningsElement = document.getElementById('total-earnings');
+                    const ridesTableBody = document.getElementById('rides-table').querySelector('tbody');
+
+                    totalRidesElement.textContent = driver.rides.length;
+                    const totalEarnings = driver.rides.reduce((sum, ride) => sum + ride.fare, 0);
+                    totalEarningsElement.textContent = `$${totalEarnings.toFixed(2)}`;
+
+                    ridesTableBody.innerHTML = '';
+                    driver.rides.forEach(ride => {
+                        const row = ridesTableBody.insertRow();
+                        row.innerHTML = `
+                            <td>${ride.id}</td>
+                            <td>${new Date(ride.date).toLocaleDateString()}</td>
+                            <td>${ride.origin}</td>
+                            <td>${ride.destination}</td>
+                            <td>$${ride.fare.toFixed(2)}</td>
+                        `;
+                    });
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
             } catch (error) {
-                console.error('Network or API error during ride fetch:', error);
-                alert('Could not load rides from the server.');
+                console.error('API error:', error);
+                alert('Could not load rides data.');
             }
         }
 
@@ -871,44 +888,54 @@
             if (!loggedInDriverId) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/driver/profile?driverId=${loggedInDriverId}`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load driver profile:', response.status, response.statusText, data.message);
-                    alert('Error loading profile: ' + data.message);
-                    return;
-                }
+                const response = await fetch(`${API_BASE_URL}/api/driver/profile?driverId=${loggedInDriverId}`, {
+                    headers: { 'Origin': getOriginUrl() }
+                });
                 const data = await response.json();
-                const driver = data.driver;
-                document.getElementById('profile-full-name').textContent = driver.fullName;
-                document.getElementById('profile-id').textContent = driver.id;
-                document.getElementById('profile-whatsapp-phone').textContent = driver.whatsappPhone;
-                document.getElementById('profile-vehicle-type-color').textContent = driver.vehicleTypeColor;
-                document.getElementById('profile-license-plate').textContent = driver.licensePlate;
-                document.getElementById('profile-drivers-license-number').textContent = driver.driversLicenseNumber;
-                document.getElementById('profile-insurance-number').textContent = driver.insuranceNumber;
+                if (response.ok) {
+                    const driver = data.driver;
+                    document.getElementById('profile-full-name').textContent = driver.fullName || 'N/A';
+                    document.getElementById('profile-id').textContent = driver.id || 'N/A';
+                    document.getElementById('profile-whatsapp-phone').textContent = driver.whatsappPhone || 'N/A';
+                    document.getElementById('profile-vehicle-type-color').textContent = driver.vehicleTypeColor || 'N/A';
+                    document.getElementById('profile-license-plate').textContent = driver.licensePlate || 'N/A';
+                    document.getElementById('profile-drivers-license-number').textContent = driver.driversLicenseNumber || 'N/A';
+                    document.getElementById('profile-insurance-number').textContent = driver.insuranceNumber || 'N/A';
 
-                // Display images if available
-                updateProfileImage('profile-driver-picture', 'driver-picture-link', driver.pictures.driverPicture);
-                updateProfileImage('profile-vehicle-picture', 'vehicle-picture-link', driver.pictures.vehiclePicture);
-                updateProfileImage('profile-insurance-picture', 'insurance-picture-link', driver.pictures.insurancePicture);
+                    // Update pictures
+                    const pictures = driver.pictures || {};
+                    const driverPicLink = document.getElementById('driver-picture-link');
+                    const vehiclePicLink = document.getElementById('vehicle-picture-link');
+                    const insurancePicLink = document.getElementById('insurance-picture-link');
+                    
+                    if (pictures.driverPicture) {
+                        document.getElementById('profile-driver-picture').src = pictures.driverPicture;
+                        driverPicLink.style.display = 'inline-block';
+                        driverPicLink.href = pictures.driverPicture;
+                    } else {
+                        driverPicLink.style.display = 'none';
+                    }
+                    if (pictures.vehiclePicture) {
+                        document.getElementById('profile-vehicle-picture').src = pictures.vehiclePicture;
+                        vehiclePicLink.style.display = 'inline-block';
+                        vehiclePicLink.href = pictures.vehiclePicture;
+                    } else {
+                        vehiclePicLink.style.display = 'none';
+                    }
+                    if (pictures.insurancePicture) {
+                        document.getElementById('profile-insurance-picture').src = pictures.insurancePicture;
+                        insurancePicLink.style.display = 'inline-block';
+                        insurancePicLink.href = pictures.insurancePicture;
+                    } else {
+                        insurancePicLink.style.display = 'none';
+                    }
 
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
             } catch (error) {
-                console.error('Network or API error during profile fetch:', error);
-                alert('Could not load profile from the server.');
-            }
-        }
-
-        function updateProfileImage(imgId, linkId, imageUrl) {
-            const imgElement = document.getElementById(imgId);
-            const linkElement = document.getElementById(linkId);
-
-            if (imageUrl) {
-                imgElement.src = imageUrl;
-                linkElement.href = imageUrl;
-                linkElement.style.display = 'inline-block';
-            } else {
-                linkElement.style.display = 'none';
+                console.error('API error:', error);
+                alert('Could not load profile data.');
             }
         }
 
@@ -916,206 +943,190 @@
             if (!loggedInDriverId) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/driver/commissions?driverId=${loggedInDriverId}`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load commissions:', response.status, response.statusText, data.message);
-                    alert('Error loading commissions: ' + data.message);
-                    return;
-                }
+                const response = await fetch(`${API_BASE_URL}/api/driver/commissions?driverId=${loggedInDriverId}`, {
+                    headers: { 'Origin': getOriginUrl() }
+                });
                 const data = await response.json();
-                document.getElementById('commission-amount').textContent = `$${(data.commissionDue || 0).toFixed(2)}`;
-                document.getElementById('commission-due-date').textContent = data.commissionDueDate || 'N/A';
-                // Generate WhatsApp link
-                const message = `I would like to pay my commission of ${data.commissionDue.toFixed(2)} due on ${data.commissionDueDate}. Driver ID: ${loggedInDriverId}`;
-                const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-                document.getElementById('whatsapp-payment-link').href = whatsappLink;
+                if (response.ok) {
+                    const commissionAmount = data.commissionDue !== undefined ? `$${data.commissionDue.toFixed(2)}` : '$0.00';
+                    const commissionDueDate = data.commissionDueDate ? new Date(data.commissionDueDate).toLocaleDateString() : 'N/A';
+                    document.getElementById('commission-amount').textContent = commissionAmount;
+                    document.getElementById('commission-due-date').textContent = commissionDueDate;
+                    
+                    // Set up WhatsApp link
+                    const whatsappLink = document.getElementById('whatsapp-payment-link');
+                    const message = `I would like to request to pay my commission of ${commissionAmount} which is due on ${commissionDueDate}. My Driver ID is ${loggedInDriverId}.`;
+                    whatsappLink.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
             } catch (error) {
-                console.error('Network or API error during commission fetch:', error);
-                alert('Could not load commissions from the server.');
+                console.error('API error:', error);
+                alert('Could not load commission data.');
             }
         }
-
-        // --- CORRECTED loadLeaderboard() FUNCTION with improved error handling ---
+        
         async function loadLeaderboard() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
-
-                if (!response.ok) {
-                    // Log the detailed error from the server if available
-                    let errorMessage = 'An unknown error occurred.';
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
-                    } catch (jsonError) {
-                        // If the response is not JSON, use the status text
-                        errorMessage = response.statusText || 'Response not JSON.';
-                    }
-                    console.error('Failed to load leaderboard:', response.status, errorMessage);
-                    alert(`Error loading leaderboard: ${errorMessage}`);
-                    return;
-                }
-
-                const data = await response.json();
-                const leaderboard = data.leaderboard;
-
-                // Clear previous leaderboard data from the dynamic container
-                document.getElementById('remaining-leaderboard').innerHTML = '';
-
-                const top3 = [
-                    document.querySelector('.first-place'),
-                    document.querySelector('.second-place'),
-                    document.querySelector('.third-place')
-                ];
-
-                // Safely update the top 3 placeholders
-                top3.forEach((el, index) => {
-                    const driver = leaderboard[index];
-                    if (driver) {
-                        el.querySelector('.driver-name').textContent = driver.fullName;
-                        el.querySelector('.rides').textContent = `${driver.rides} rides`;
-                    } else {
-                        el.querySelector('.driver-name').textContent = 'N/A';
-                        el.querySelector('.rides').textContent = '0 rides';
-                    }
+                const response = await fetch(`${API_BASE_URL}/api/leaderboard`, {
+                    headers: { 'Origin': getOriginUrl() }
                 });
-
-                // Populate the rest of the leaderboard
-                const remainingDrivers = leaderboard.slice(3);
-                remainingDrivers.forEach((driver, index) => {
-                    const newPlace = document.createElement('div');
-                    newPlace.className = 'place';
-                    newPlace.innerHTML = `
-                        <span class="rank">${index + 4}th</span>
-                        <span class="driver-name">${driver.fullName}</span>
-                        <span class="rides">${driver.rides} rides</span>
-                    `;
-                    document.getElementById('remaining-leaderboard').appendChild(newPlace);
-                });
-
-            } catch (error) {
-                console.error('Network or API error during leaderboard fetch:', error);
-                alert('Could not load leaderboard from the server.');
-            }
-        }
-
-        // --- Admin Dashboard Functions ---
-        async function loadAdminDashboard() {
-            if (!isAdmin) return;
-
-            try {
-                // Fetch drivers for all dropdowns
-                const response = await fetch(`${API_BASE_URL}/api/admin/drivers`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load drivers for admin dashboard:', response.status, response.statusText, data.message);
-                    alert('Error loading drivers: ' + data.message);
-                    return;
-                }
                 const data = await response.json();
-                const drivers = data.drivers;
-                const driverDropdowns = [
-                    document.getElementById('select-driver-to-manage'),
-                    document.getElementById('select-driver-for-pictures'),
-                    document.getElementById('select-driver-for-rides'),
-                    document.getElementById('select-driver-for-commissions')
-                ];
+                if (response.ok) {
+                    const leaderboard = data.leaderboard;
+                    const places = document.querySelectorAll('.place');
+                    const remainingBoard = document.getElementById('remaining-leaderboard');
+                    remainingBoard.innerHTML = '';
 
-                driverDropdowns.forEach(dropdown => {
-                    dropdown.innerHTML = '<option value="">-- Select Driver --</option>'; // Clear and add default
-                    drivers.forEach(driver => {
-                        const option = document.createElement('option');
-                        option.value = driver.id;
-                        option.textContent = `${driver.fullName} (${driver.id})`;
-                        dropdown.appendChild(option);
+                    places.forEach((place, index) => {
+                        if (leaderboard[index]) {
+                            place.style.display = 'flex';
+                            place.querySelector('.driver-name').textContent = leaderboard[index].fullName;
+                            place.querySelector('.rides').textContent = `${leaderboard[index].rides} rides`;
+                        } else {
+                            place.style.display = 'none';
+                        }
                     });
-                });
 
-                // Load driver notes into the admin textarea
-                loadAdminDriverNotes();
-            } catch (error) {
-                console.error('Network or API error during admin dashboard fetch:', error);
-                alert('Could not load admin dashboard data from the server.');
-            }
-        }
-
-        async function loadAdminDriverNotes() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/notes/get`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load admin notes:', response.status, response.statusText, data.message);
-                    return;
+                    // Handle remaining drivers
+                    for (let i = 3; i < leaderboard.length; i++) {
+                        const driver = leaderboard[i];
+                        const div = document.createElement('div');
+                        div.className = 'place';
+                        div.innerHTML = `
+                            <span class="rank">${i + 1}th</span>
+                            <span class="driver-name">${driver.fullName}</span>
+                            <span class="rides">${driver.rides} rides</span>
+                        `;
+                        remainingBoard.appendChild(div);
+                    }
+                } else {
+                    alert(`Error: ${data.message}`);
                 }
-                const data = await response.json();
-                document.getElementById('admin-driver-notes').value = data.notes;
             } catch (error) {
-                console.error('Network or API error during notes fetch for admin:', error);
+                console.error('API error:', error);
+                alert('Could not load leaderboard data.');
             }
         }
-
+        
+        // --- Admin-specific Functions ---
         async function addDriver() {
-            const fullName = document.getElementById('add-driver-full-name').value.trim();
-            const driverId = document.getElementById('add-driver-id').value.trim().toUpperCase();
+            const fullName = document.getElementById('add-driver-full-name').value;
+            const driverId = document.getElementById('add-driver-id').value.toUpperCase();
+            const adminToken = localStorage.getItem('adminToken');
 
             if (!fullName || !driverId) {
-                alert('Please enter a full name and a driver ID.');
+                alert('Please enter a full name and driver ID.');
                 return;
             }
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/add-driver`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    },
                     body: JSON.stringify({ fullName, driverId })
                 });
+
                 const data = await response.json();
+                alert(data.message);
                 if (response.ok) {
-                    alert(`Driver ${driverId} added successfully!`);
-                    document.getElementById('add-driver-full-name').value = '';
-                    document.getElementById('add-driver-id').value = '';
-                    loadAdminDashboard(); // Refresh the dashboard
-                } else {
-                    alert(`Error adding driver: ${data.message}`);
+                    loadAdminDashboard();
                 }
             } catch (error) {
-                console.error('Network or API error during add driver:', error);
+                console.error('API error:', error);
+                alert('Could not add driver.');
             }
         }
-        
+
         async function removeDriver() {
             const driverId = document.getElementById('select-driver-to-manage').value;
+            const adminToken = localStorage.getItem('adminToken');
             if (!driverId) {
                 alert('Please select a driver to remove.');
                 return;
             }
 
-            if (!confirm(`Are you sure you want to remove driver ${driverId}? This action cannot be undone.`)) {
+            if (!confirm(`Are you sure you want to remove driver ${driverId}? This cannot be undone.`)) {
                 return;
             }
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/remove-driver`, {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    },
                     body: JSON.stringify({ driverId })
                 });
+
                 const data = await response.json();
+                alert(data.message);
                 if (response.ok) {
-                    alert(`Driver ${driverId} removed successfully.`);
-                    loadAdminDashboard(); // Refresh the dashboard
-                } else {
-                    alert(`Error removing driver: ${data.message}`);
+                    loadAdminDashboard();
                 }
             } catch (error) {
-                console.error('Network or API error during remove driver:', error);
+                console.error('API error:', error);
+                alert('Could not remove driver.');
             }
         }
+        
+        async function loadAdminDashboard() {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                alert('Unauthorized. Please log in as an admin.');
+                showLogin();
+                return;
+            }
 
+            try {
+                // Load drivers for select dropdowns
+                const driversResponse = await fetch(`${API_BASE_URL}/api/admin/drivers`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    }
+                });
+                const driversData = await driversResponse.json();
+                const driverSelects = [
+                    document.getElementById('select-driver-to-manage'),
+                    document.getElementById('select-driver-for-pictures'),
+                    document.getElementById('select-driver-for-rides'),
+                    document.getElementById('select-driver-for-commissions')
+                ];
+                driverSelects.forEach(select => {
+                    select.innerHTML = '<option value="">-- Select Driver --</option>';
+                    driversData.drivers.forEach(driver => {
+                        const option = document.createElement('option');
+                        option.value = driver.id;
+                        option.textContent = `${driver.id} - ${driver.fullName}`;
+                        select.appendChild(option);
+                    });
+                });
+
+                // Load notes for admin editing
+                const notesResponse = await fetch(`${API_BASE_URL}/api/notes/get`, {
+                    headers: { 'Origin': getOriginUrl() }
+                });
+                const notesData = await notesResponse.json();
+                document.getElementById('admin-driver-notes').value = notesData.notes;
+            } catch (error) {
+                console.error('API error loading admin dashboard:', error);
+                alert('Could not load admin dashboard data.');
+            }
+        }
+        
+        // Admin functions for managing a single driver
         async function loadDriverForEdit() {
             const driverId = document.getElementById('select-driver-to-manage').value;
+            const adminToken = localStorage.getItem('adminToken');
             if (!driverId) {
-                // Clear the form if no driver is selected
+                // Clear fields if no driver selected
                 document.getElementById('edit-driver-full-name').value = '';
                 document.getElementById('edit-driver-whatsapp-phone').value = '';
                 document.getElementById('edit-driver-vehicle-type-color').value = '';
@@ -1124,309 +1135,265 @@
                 document.getElementById('edit-driver-insurance-number').value = '';
                 return;
             }
+
             try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/driver-profile?driverId=${driverId}`);
+                const response = await fetch(`${API_BASE_URL}/api/admin/driver-profile?driverId=${driverId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    }
+                });
                 const data = await response.json();
                 if (response.ok) {
-                    const driver = data.driver;
-                    document.getElementById('edit-driver-full-name').value = driver.fullName;
-                    document.getElementById('edit-driver-whatsapp-phone').value = driver.whatsappPhone;
-                    document.getElementById('edit-driver-vehicle-type-color').value = driver.vehicleTypeColor;
-                    document.getElementById('edit-driver-license-plate').value = driver.licensePlate;
-                    document.getElementById('edit-driver-drivers-license-number').value = driver.driversLicenseNumber;
-                    document.getElementById('edit-driver-insurance-number').value = driver.insuranceNumber;
+                    document.getElementById('edit-driver-full-name').value = data.driver.fullName || '';
+                    document.getElementById('edit-driver-whatsapp-phone').value = data.driver.whatsappPhone || '';
+                    document.getElementById('edit-driver-vehicle-type-color').value = data.driver.vehicleTypeColor || '';
+                    document.getElementById('edit-driver-license-plate').value = data.driver.licensePlate || '';
+                    document.getElementById('edit-driver-drivers-license-number').value = data.driver.driversLicenseNumber || '';
+                    document.getElementById('edit-driver-insurance-number').value = data.driver.insuranceNumber || '';
                 } else {
-                    alert(`Error loading driver profile: ${data.message}`);
+                    alert(`Error: ${data.message}`);
                 }
             } catch (error) {
-                console.error('Network or API error during profile load:', error);
+                console.error('API error:', error);
+                alert('Could not load driver profile.');
             }
         }
 
         async function updateDriverProfile() {
             const driverId = document.getElementById('select-driver-to-manage').value;
-            const fullName = document.getElementById('edit-driver-full-name').value;
-            const whatsappPhone = document.getElementById('edit-driver-whatsapp-phone').value;
-            const vehicleTypeColor = document.getElementById('edit-driver-vehicle-type-color').value;
-            const licensePlate = document.getElementById('edit-driver-license-plate').value;
-            const driversLicenseNumber = document.getElementById('edit-driver-drivers-license-number').value;
-            const insuranceNumber = document.getElementById('edit-driver-insurance-number').value;
-
+            const adminToken = localStorage.getItem('adminToken');
             if (!driverId) {
                 alert('Please select a driver to update.');
                 return;
             }
 
-            const updatedProfile = {
-                driverId,
-                fullName,
-                whatsappPhone,
-                vehicleTypeColor,
-                licensePlate,
-                driversLicenseNumber,
-                insuranceNumber
+            const updatedData = {
+                driverId: driverId,
+                fullName: document.getElementById('edit-driver-full-name').value,
+                whatsappPhone: document.getElementById('edit-driver-whatsapp-phone').value,
+                vehicleTypeColor: document.getElementById('edit-driver-vehicle-type-color').value,
+                licensePlate: document.getElementById('edit-driver-license-plate').value,
+                driversLicenseNumber: document.getElementById('edit-driver-drivers-license-number').value,
+                insuranceNumber: document.getElementById('edit-driver-insurance-number').value,
             };
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/update-driver-profile`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedProfile)
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    },
+                    body: JSON.stringify(updatedData)
                 });
                 const data = await response.json();
-                if (response.ok) {
-                    alert('Driver profile updated successfully!');
-                    loadDriverForEdit(); // Reload the profile to confirm changes
-                } else {
-                    alert(`Error updating profile: ${data.message}`);
-                }
+                alert(data.message);
             } catch (error) {
-                console.error('Network or API error during profile update:', error);
-            }
-        }
-
-        async function loadDriverPicturesForAdmin() {
-            const driverId = document.getElementById('select-driver-for-pictures').value;
-            const previewIds = ['preview-driver-picture', 'preview-vehicle-picture', 'preview-insurance-picture'];
-            previewIds.forEach(id => {
-                document.getElementById(id).style.display = 'none';
-                document.getElementById(id).src = ''; // Clear the image source
-            });
-            if (!driverId) return;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/driver-pictures?driverId=${driverId}`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load pictures for admin:', response.status, response.statusText, data.message);
-                    return;
-                }
-                const data = await response.json();
-                if (data.driverPicture) {
-                    document.getElementById('preview-driver-picture').src = data.driverPicture;
-                    document.getElementById('preview-driver-picture').style.display = 'block';
-                }
-                if (data.vehiclePicture) {
-                    document.getElementById('preview-vehicle-picture').src = data.vehiclePicture;
-                    document.getElementById('preview-vehicle-picture').style.display = 'block';
-                }
-                if (data.insurancePicture) {
-                    document.getElementById('preview-insurance-picture').src = data.insurancePicture;
-                    document.getElementById('preview-insurance-picture').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Network or API error during picture fetch for admin:', error);
-            }
-        }
-
-        async function uploadPicture(pictureType) {
-            const driverId = document.getElementById('select-driver-for-pictures').value;
-            if (!driverId) {
-                alert('Please select a driver first.');
-                return;
-            }
-            const fileInput = document.getElementById(`upload-${pictureType}-picture`);
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('Please select a file to upload.');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('driverId', driverId);
-            formData.append('pictureType', pictureType);
-            formData.append('file', file);
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/upload-picture`, {
-                    method: 'POST',
-                    body: formData,
-                    // No 'Content-Type' header needed for FormData; browser sets it automatically
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    alert('Picture uploaded successfully!');
-                    fileInput.value = ''; // Clear the file input
-                    loadDriverPicturesForAdmin(); // Refresh preview
-                } else {
-                    alert(`Error uploading picture: ${data.message}`);
-                }
-            } catch (error) {
-                console.error('Network or API error during picture upload:', error);
-            }
-        }
-
-        async function addRideToDriver() {
-            const driverId = document.getElementById('select-driver-for-rides').value;
-            const origin = document.getElementById('new-ride-origin').value;
-            const destination = document.getElementById('new-ride-destination').value;
-            const fare = parseFloat(document.getElementById('new-ride-fare').value);
-            const rideId = `R${Date.now()}`;
-            const date = new Date().toISOString();
-
-            if (!driverId || !origin || !destination || isNaN(fare)) {
-                alert('Please fill out all fields correctly.');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/add-ride`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ driverId, rideId, date, origin, destination, fare })
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    alert('Ride added successfully!');
-                    document.getElementById('new-ride-origin').value = '';
-                    document.getElementById('new-ride-destination').value = '';
-                    document.getElementById('new-ride-fare').value = '';
-                    loadRidesForAdmin(); // Refresh the rides list
-                    loadLeaderboard(); // Also refresh the leaderboard
-                } else {
-                    alert(`Error adding ride: ${data.message}`);
-                }
-            } catch (error) {
-                console.error('Network or API error during add ride:', error);
+                console.error('API error:', error);
+                alert('Could not update driver profile.');
             }
         }
 
         async function loadRidesForAdmin() {
             const driverId = document.getElementById('select-driver-for-rides').value;
-            const ridesTableBody = document.querySelector('#admin-rides-table tbody');
-            ridesTableBody.innerHTML = '';
+            const adminToken = localStorage.getItem('adminToken');
+            const tableBody = document.getElementById('admin-rides-table').querySelector('tbody');
+            tableBody.innerHTML = ''; // Clear existing rides
+
             if (!driverId) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/driver/rides?driverId=${driverId}`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load rides for admin:', response.status, response.statusText, data.message);
-                    return;
-                }
-                const data = await response.json();
-                data.driver.rides.forEach(ride => {
-                    const row = ridesTableBody.insertRow();
-                    row.insertCell().textContent = ride.id;
-                    row.insertCell().textContent = new Date(ride.date).toLocaleDateString();
-                    row.insertCell().textContent = ride.origin;
-                    row.insertCell().textContent = ride.destination;
-                    row.insertCell().textContent = `$${(ride.fare || 0).toFixed(2)}`;
-                    const actionCell = row.insertCell();
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.onclick = () => removeRideFromDriver(driverId, ride.id);
-                    actionCell.appendChild(deleteButton);
+                const response = await fetch(`${API_BASE_URL}/api/admin/driver-profile?driverId=${driverId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    }
                 });
+                const data = await response.json();
+                if (response.ok) {
+                    data.driver.rides.forEach(ride => {
+                        const row = tableBody.insertRow();
+                        row.innerHTML = `
+                            <td>${ride.id}</td>
+                            <td>${new Date(ride.date).toLocaleDateString()}</td>
+                            <td>${ride.origin}</td>
+                            <td>${ride.destination}</td>
+                            <td>$${ride.fare.toFixed(2)}</td>
+                            <td><button onclick="removeRideFromDriver('${driverId}', '${ride.id}')">Remove</button></td>
+                        `;
+                    });
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
             } catch (error) {
-                console.error('Network or API error during admin ride fetch:', error);
+                console.error('API error:', error);
+                alert('Could not load driver rides.');
+            }
+        }
+
+        async function addRideToDriver() {
+            const driverId = document.getElementById('select-driver-for-rides').value;
+            const adminToken = localStorage.getItem('adminToken');
+            const origin = document.getElementById('new-ride-origin').value;
+            const destination = document.getElementById('new-ride-destination').value;
+            const fare = parseFloat(document.getElementById('new-ride-fare').value);
+
+            if (!driverId || !origin || !destination || isNaN(fare)) {
+                alert('Please fill in all ride details.');
+                return;
+            }
+
+            const newRide = {
+                driverId,
+                rideId: Math.random().toString(36).substring(2, 9), // Simple unique ID
+                date: new Date().toISOString(),
+                origin,
+                destination,
+                fare
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/add-ride`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    },
+                    body: JSON.stringify(newRide)
+                });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) {
+                    loadRidesForAdmin();
+                }
+            } catch (error) {
+                console.error('API error:', error);
+                alert('Could not add ride.');
             }
         }
 
         async function removeRideFromDriver(driverId, rideId) {
-            if (!confirm(`Are you sure you want to remove ride ${rideId}?`)) {
-                return;
-            }
+            const adminToken = localStorage.getItem('adminToken');
+            if (!confirm(`Are you sure you want to remove ride ${rideId}?`)) return;
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/remove-ride`, {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    },
                     body: JSON.stringify({ driverId, rideId })
                 });
-
                 const data = await response.json();
+                alert(data.message);
                 if (response.ok) {
-                    alert('Ride removed successfully!');
-                    loadRidesForAdmin(); // Refresh the rides list
-                    loadLeaderboard(); // Also refresh the leaderboard
-                } else {
-                    alert(`Error removing ride: ${data.message}`);
+                    loadRidesForAdmin();
                 }
             } catch (error) {
-                console.error('Network or API error during ride removal:', error);
+                console.error('API error:', error);
+                alert('Could not remove ride.');
             }
         }
-
+        
         async function loadCommissionsForAdmin() {
             const driverId = document.getElementById('select-driver-for-commissions').value;
+            const adminToken = localStorage.getItem('adminToken');
             if (!driverId) {
                 document.getElementById('admin-commission-amount').textContent = '$0.00';
                 document.getElementById('admin-commission-due-date').textContent = 'N/A';
                 return;
             }
+
             try {
-                const response = await fetch(`${API_BASE_URL}/api/driver/commissions?driverId=${driverId}`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    console.error('Failed to load commissions for admin:', response.status, response.statusText, data.message);
-                    return;
-                }
+                const response = await fetch(`${API_BASE_URL}/api/admin/driver-profile?driverId=${driverId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    }
+                });
                 const data = await response.json();
-                document.getElementById('admin-commission-amount').textContent = `$${(data.commissionDue || 0).toFixed(2)}`;
-                document.getElementById('admin-commission-due-date').textContent = data.commissionDueDate || 'N/A';
+                if (response.ok) {
+                    const commission = data.driver.commission;
+                    document.getElementById('admin-commission-amount').textContent = commission && commission.due !== undefined ? `$${commission.due.toFixed(2)}` : '$0.00';
+                    document.getElementById('admin-commission-due-date').textContent = commission && commission.dueDate ? new Date(commission.dueDate).toLocaleDateString() : 'N/A';
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
             } catch (error) {
-                console.error('Network or API error during admin commission fetch:', error);
+                console.error('API error:', error);
+                alert('Could not load commissions.');
             }
         }
-
+        
         async function setDriverCommission() {
             const driverId = document.getElementById('select-driver-for-commissions').value;
+            const adminToken = localStorage.getItem('adminToken');
             const commissionDue = parseFloat(document.getElementById('set-commission-amount').value);
             const commissionDueDate = document.getElementById('set-commission-due-date').value;
 
             if (!driverId || isNaN(commissionDue) || !commissionDueDate) {
-                alert('Please select a driver and provide a valid amount and date.');
+                alert('Please fill in all commission details.');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/set-commission`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    },
                     body: JSON.stringify({ driverId, commissionDue, commissionDueDate })
                 });
-
                 const data = await response.json();
+                alert(data.message);
                 if (response.ok) {
-                    alert('Commission set successfully!');
-                    document.getElementById('set-commission-amount').value = '';
-                    document.getElementById('set-commission-due-date').value = '';
-                    loadCommissionsForAdmin(); // Refresh the display
-                } else {
-                    alert(`Error setting commission: ${data.message}`);
+                    loadCommissionsForAdmin();
                 }
             } catch (error) {
-                console.error('Network or API error during set commission:', error);
+                console.error('API error:', error);
+                alert('Could not set commission.');
             }
         }
 
         async function updateDriverNotes() {
+            const adminToken = localStorage.getItem('adminToken');
             const notes = document.getElementById('admin-driver-notes').value;
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/notes/update`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    },
                     body: JSON.stringify({ notes })
                 });
-
                 const data = await response.json();
-                if (response.ok) {
-                    alert('Driver notes updated successfully!');
-                    loadDriverNotes(); // Refresh header notes
-                } else {
-                    alert(`Error updating notes: ${data.message}`);
-                }
+                alert(data.message);
             } catch (error) {
-                console.error('Network or API error during notes update:', error);
+                console.error('API error:', error);
+                alert('Could not update notes.');
             }
         }
 
         async function downloadData() {
+            const adminToken = localStorage.getItem('adminToken');
             try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/download`);
+                const response = await fetch(`${API_BASE_URL}/api/admin/download`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Origin': getOriginUrl()
+                    }
+                });
+
                 if (response.ok) {
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
@@ -1437,17 +1404,18 @@
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
+                    alert('Data download started.');
                 } else {
                     const data = await response.json();
-                    alert(`Error downloading data: ${data.message}`);
+                    alert(`Error: ${data.message}`);
                 }
             } catch (error) {
-                console.error('Network or API error during data download:', error);
+                console.error('API error during data download:', error);
                 alert('Could not download data from the server.');
             }
         }
     </script>
     <script src="driver.js"></script>
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 </body>
 </html>
