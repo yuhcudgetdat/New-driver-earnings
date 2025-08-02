@@ -68,11 +68,8 @@ function renderAdminDashboard() {
 }
 
 function loadRidesAndEarnings() {
-    // This is a placeholder. You'll need a way to fetch rides from your API.
-    // The previous code had a function for this, so ensure your worker is set up.
-    // Assuming currentDriver has a 'rides' array.
     const ridesTableBody = document.querySelector('#rides-table tbody');
-    ridesTableBody.innerHTML = '';
+    ridesTableBody.innerHTML = ''; 
     if (currentDriver && currentDriver.rides && currentDriver.rides.length > 0) {
         currentDriver.rides.forEach(ride => {
             const row = document.createElement('tr');
@@ -107,7 +104,7 @@ async function loadCommissions() {
 async function loadLeaderboard() {
     const leaderboardData = await makeApiRequest('/api/leaderboard');
     const leaderboardContainer = document.getElementById('leaderboard-container');
-    leaderboardContainer.innerHTML = ''; // Clear previous content
+    leaderboardContainer.innerHTML = ''; 
 
     if (leaderboardData && leaderboardData.leaderboard) {
         leaderboardData.leaderboard.forEach((driver, index) => {
