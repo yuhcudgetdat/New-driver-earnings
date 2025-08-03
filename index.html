@@ -631,7 +631,6 @@
 
         // Helper function to dynamically get the origin
         function getOriginUrl() {
-            // This is the key fix to ensure the correct origin is sent
             return window.location.origin;
         }
 
@@ -658,7 +657,7 @@
             } catch (error) {
                 console.error('Error checking admin status:', error);
                 alert('Could not connect to the server. Please try again later.');
-                showSection('admin-setup-section', false); // Assume not set up on error
+                showSection('admin-setup-section', false);
             }
         });
 
@@ -710,7 +709,7 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Origin': getOriginUrl() // Use dynamic origin
+                        'Origin': getOriginUrl()
                     },
                     body: JSON.stringify({ username, password })
                 });
@@ -726,7 +725,7 @@
             } catch (error) {
                 console.error('Network or API error during admin setup:', error);
                 alert('Could not connect to the server. Please try again later.');
-                showSection('admin-setup-section', false); // Assume not set up on error
+                showSection('admin-setup-section', false);
             }
         }
 
@@ -755,7 +754,7 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Origin': getOriginUrl() // Use dynamic origin
+                        'Origin': getOriginUrl()
                     },
                     body: JSON.stringify({ username, password })
                 });
@@ -769,7 +768,6 @@
                     document.getElementById('admin-login-section').classList.remove('active');
                     document.getElementById('admin-nav').style.display = 'flex';
                     showSection('admin-dashboard');
-                    // You can save the token in localStorage for persistent sessions if needed
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminUsername', username);
                 } else {
@@ -805,7 +803,7 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Origin': getOriginUrl() // Use dynamic origin
+                        'Origin': getOriginUrl()
                     },
                     body: JSON.stringify({ driverId })
                 });
@@ -818,7 +816,7 @@
                     document.getElementById('login-section').classList.remove('active');
                     document.getElementById('driver-nav').style.display = 'flex';
                     localStorage.setItem('driverId', loggedInDriverId);
-                    loadDriverNotes(); // Load notes on successful login
+                    loadDriverNotes();
                 } else {
                     alert(`Error: ${data.message}`);
                 }
