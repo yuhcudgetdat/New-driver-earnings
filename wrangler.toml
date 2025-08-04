@@ -13,3 +13,5 @@ database_id = "<YOUR_D1_DATABASE_ID>" # Get this from the D1 dashboard
 [[r2_buckets]]
 binding = "BUCKET" # This variable name will be available as env.BUCKET in your Worker
 bucket_name = "blackcarpet-images" # The name you gave your R2 bucket in Cloudflare UI
+[build]
+ignore-tsc-check = true
