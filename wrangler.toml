@@ -7,13 +7,12 @@ compatibility_date = "2024-07-01"
 # It's better to manage secrets in the dashboard than in this file
 # ADMIN_PASSWORD = "your_secure_password_here"
 
-[site]
-bucket = "./"
-entry-point = "driver.js"
-
-[triggers]
-crons = []
-
 [[kv_namespaces]]
 binding = "DRIVER_APP_DATA"
 id = "your-kv-namespace-id"
+
+[site]
+bucket = "./"
+
+[triggers]
+crons = []
