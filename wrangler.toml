@@ -1,6 +1,6 @@
 name = "my-driver-dashboard"
 main = "worker.js"
-compatibility_date = "2024-07-01"
+compatibility_date = "2025-08-04"
 
 [vars]
 # You'll need to set this secret in the Cloudflare dashboard
