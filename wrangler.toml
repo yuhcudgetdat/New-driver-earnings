@@ -5,7 +5,7 @@ compatibility_date = "2025-08-04"
 
 [[kv_namespaces]]
 binding = "DRIVER_APP_DATA"
-id = "your-kv-namespace-id"
+id = "1d065d98a2ec432787a4b548dd83ae25"
 
 [site]
 bucket = "./"
