@@ -3,11 +3,6 @@ name = 'driver-auth-worker'
 main = "worker.js"
 compatibility_date = "2025-08-04"
 
-[vars]
-# You'll need to set this secret in the Cloudflare dashboard
-# It's better to manage secrets in the dashboard than in this file
-# ADMIN_PASSWORD = "your_secure_password_here"
-
 [[kv_namespaces]]
 binding = "DRIVER_APP_DATA"
 id = "your-kv-namespace-id"
@@ -17,5 +12,3 @@ bucket = "./"
 
 [triggers]
 crons = []
-# wrangler.toml
-name = 'driver-auth-worker'
