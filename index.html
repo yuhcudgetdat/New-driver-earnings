@@ -339,7 +339,7 @@
     <script>
         /* --- JavaScript Code Starts Here --- */
         // IMPORTANT: Replace this with the actual URL of your deployed Cloudflare Worker
-        const API_URL = 'https://chanfana-openapi-template.blackcarpetridesharelogistics.workers.dev/';
+        const API_URL = 'YOUR_WORKER_URL_HERE';
         
         let loggedInDriverId = null;
         let isAdmin = false;
@@ -409,7 +409,6 @@
                 
                 if (response.ok && data.success) {
                     const driver = data.driver;
-                    // Update driver profile display
                     document.getElementById('driver-name-display').textContent = driver.full_name;
                     document.getElementById('driver-phone-display').textContent = driver.whatsapp_phone || 'N/A';
                     document.getElementById('vehicle-type-color-display').textContent = driver.vehicle_type_color || 'N/A';
@@ -421,11 +420,9 @@
                     document.getElementById('vehicle-picture-display').src = driver.vehicle_picture_url || 'https://via.placeholder.com/100?text=No+Vehicle';
                     document.getElementById('insurance-picture-display').src = driver.insurance_picture_url || 'https://via.placeholder.com/100?text=No+Insurance';
                     
-                    // Update commissions
                     document.getElementById('driver-commission-amount').textContent = `$${(driver.commission_due || 0).toFixed(2)}`;
                     document.getElementById('driver-commission-due-date').textContent = driver.commission_due_date || 'N/A';
                     
-                    // Update rides list
                     const ridesList = document.getElementById('driver-rides-list');
                     ridesList.innerHTML = '';
                     if (driver.rides.length > 0) {
@@ -438,7 +435,6 @@
                         ridesList.innerHTML = '<li>No rides recorded yet.</li>';
                     }
 
-                    // Load admin notes
                     const notesResponse = await fetch(`${API_URL}/notes`);
                     const notesData = await notesResponse.json();
                     document.getElementById('driver-notes').textContent = notesData.notes || 'No notes from admin.';
@@ -536,7 +532,6 @@
                     const profileSection = document.getElementById('selected-driver-profile');
                     profileSection.style.display = 'block';
 
-                    // Update profile display
                     document.getElementById('admin-driver-id-display').textContent = driver.id;
                     document.getElementById('admin-full-name-display').textContent = driver.full_name || 'N/A';
                     document.getElementById('admin-phone-display').textContent = driver.whatsapp_phone || 'N/A';
@@ -549,7 +544,6 @@
                     document.getElementById('admin-vehicle-picture').src = driver.vehicle_picture_url || 'https://via.placeholder.com/100?text=No+Vehicle';
                     document.getElementById('admin-insurance-picture').src = driver.insurance_picture_url || 'https://via.placeholder.com/100?text=No+Insurance';
 
-                    // Set form values for easy editing
                     document.getElementById('admin-set-full-name').value = driver.full_name || '';
                     document.getElementById('admin-set-whatsapp-phone').value = driver.whatsapp_phone || '';
                     document.getElementById('admin-set-vehicle-type-color').value = driver.vehicle_type_color || '';
@@ -557,7 +551,6 @@
                     document.getElementById('admin-set-license-number').value = driver.drivers_license_number || '';
                     document.getElementById('admin-set-insurance-number').value = driver.insurance_number || '';
 
-                    // Update rides list for the driver
                     const ridesList = document.getElementById('admin-driver-rides-list');
                     ridesList.innerHTML = '';
                     if (driver.rides.length > 0) {
@@ -586,8 +579,8 @@
         async function deleteRide(rideId, driverId) {
             if (!confirm('Are you sure you want to delete this ride?')) return;
             try {
-                const response = await fetch(`${API_URL}/admin/ride/${rideId}`, {
-                    method: 'DELETE'
+                const response = await fetch(`${API_URL}/admin/ride/${rideId}/delete`, {
+                    method: 'POST'
                 });
                 const data = await response.json();
                 if (response.ok && data.success) {
@@ -614,7 +607,7 @@
 
             try {
                 const response = await fetch(`${API_URL}/admin/driver/${driverId}/profile`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fullName, whatsappPhone, vehicleTypeColor, licensePlate, driversLicenseNumber, insuranceNumber })
                 });
@@ -622,7 +615,7 @@
                 if (response.ok && data.success) {
                     alert('Driver profile updated successfully!');
                     loadSelectedDriverProfile(driverId);
-                    loadAdminDrivers(); // Refresh main list
+                    loadAdminDrivers();
                 } else {
                     alert('Failed to update profile: ' + data.message);
                 }
@@ -656,7 +649,7 @@
                     alert('Ride added successfully!');
                     document.getElementById('admin-add-ride-form').reset();
                     loadSelectedDriverProfile(driverId);
-                    loadAdminDrivers(); // Refresh main list
+                    loadAdminDrivers();
                 } else {
                     alert('Failed to add ride: ' + data.message);
                 }
@@ -711,7 +704,7 @@
 
             try {
                 const response = await fetch(`${API_URL}/admin/driver/${selectedDriverId}/commission`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ commissionDue, commissionDueDate })
                 });
@@ -745,14 +738,13 @@
             const notes = document.getElementById('admin-driver-notes').value.trim();
             try {
                 const response = await fetch(`${API_URL}/admin/notes`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ notes })
                 });
                 const data = await response.json();
                 if (response.ok && data.success) {
                     alert('Driver notes updated successfully!');
-                    // Optionally, update the driver dashboard notes if the admin is viewing it
                 } else {
                     alert('Failed to update notes: ' + data.message);
                 }
@@ -787,11 +779,9 @@
             }
         }
 
-        // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
             showSection('login-section');
         });
-        /* --- JavaScript Code Ends Here --- */
     </script>
 </body>
 </html>
